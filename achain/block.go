@@ -3,6 +3,7 @@ package achain
 import (
 	"crypto"
 	"crypto/x509"
+	"fmt"
 
 	"github.com/fido-device-onboard/go-fdo/cbor"
 	"github.com/fido-device-onboard/go-fdo/cose"
@@ -20,6 +21,7 @@ type Header struct {
 
 type SignedHeader struct {
 	IssuerDER []byte
+	Header    Header
 	Signature cose.Sign1[Header, []byte]
 }
 
@@ -41,12 +43,12 @@ func Sign(key crypto.Signer, header *Header) (*SignedHeader, error) {
 	if err != nil {
 		return nil, err
 	}
-	s := cose.Sign1[Header, []byte]{
-		Payload: cbor.NewByteWrap(*header),
-	}
-	s.Sign(key, nil, pubDER, nil)
+	s := cose.Sign1[Header, []byte]{}
+	fmt.Println(s)
+	s.Sign(key, header, pubDER, nil)
 	sh := SignedHeader{
 		IssuerDER: pubDER,
+		Header:    *header,
 		Signature: s,
 	}
 	return &sh, nil
@@ -58,5 +60,5 @@ func (sh *SignedHeader) Verify() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	return sh.Signature.Verify(pub, nil, pubDER)
+	return sh.Signature.Verify(pub, &sh.Header, pubDER)
 }

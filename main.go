@@ -44,7 +44,7 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(zid)
-	fmt.Println(zbytes)
+	fmt.Println(len(zbytes))
 	sigBytes, err := cbor.Marshal(sig)
 	if err != nil {
 		panic(err)
