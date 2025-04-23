@@ -1,17 +1,18 @@
 package achain
 
 import (
-	"crypto"
-	"crypto/x509"
-	"fmt"
+	"crypto/ed25519"
 
 	"github.com/fido-device-onboard/go-fdo/cbor"
-	"github.com/fido-device-onboard/go-fdo/cose"
 	"github.com/ipfs/go-cid"
+	"github.com/ipld/go-ipld-prime/datamodel"
+	"github.com/ipld/go-ipld-prime/fluent"
+	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
+	"github.com/ipld/go-ipld-prime/node/basicnode"
 )
 
-type Header struct {
-	Version   int16
+type Payload struct {
+	Version   int64
 	Accept    []cid.Cid
 	Reject    []cid.Cid
 	Body      cid.Cid
@@ -19,14 +20,43 @@ type Header struct {
 	MediaType string
 }
 
-type SignedHeader struct {
-	IssuerDER []byte
-	Header    Header
-	Signature cose.Sign1[Header, []byte]
+func (payload *Payload) MakeNode() datamodel.Node {
+	return fluent.MustBuildMap(basicnode.Prototype__Any{}, 6,
+		func(assembler fluent.MapAssembler) {
+			assembler.AssembleEntry("Version").AssignInt(payload.Version)
+			assembler.AssembleEntry("Accept").CreateList(2, func(la fluent.ListAssembler) {
+				for _, accept := range payload.Accept {
+					la.AssembleValue().AssignLink(cidlink.Link{Cid: accept})
+				}
+			})
+			assembler.AssembleEntry("Reject").CreateList(1, func(la fluent.ListAssembler) {
+				for _, reject := range payload.Reject {
+					la.AssembleValue().AssignLink(cidlink.Link{Cid: reject})
+				}
+			})
+			assembler.AssembleEntry("Body").AssignLink(cidlink.Link{Cid: payload.Body})
+			assembler.AssembleEntry("Schema").AssignString(payload.Schema)
+			assembler.AssembleEntry("MediaType").AssignString(payload.MediaType)
+		})
 }
 
-func (sh *SignedHeader) Marshal() (*cid.Cid, []byte, error) {
-	bytes, err := cbor.Marshal(sh)
+type Header struct {
+	Payload   Payload
+	Issuer    string
+	Signature []byte
+}
+
+func (header *Header) MakeNode() datamodel.Node {
+	return fluent.MustBuildMap(basicnode.Prototype__Any{}, 3,
+		func(assembler fluent.MapAssembler) {
+			assembler.AssembleEntry("Payload").AssignNode(header.Payload.MakeNode())
+			assembler.AssembleEntry("Issuer").AssignString(header.Issuer)
+			assembler.AssembleEntry("Signature").AssignBytes(header.Signature)
+		})
+}
+
+func (header *Header) Marshal() (*cid.Cid, []byte, error) {
+	bytes, err := cbor.Marshal(header)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -38,27 +68,35 @@ func (sh *SignedHeader) Marshal() (*cid.Cid, []byte, error) {
 	return &id, bytes, nil
 }
 
-func Sign(key crypto.Signer, header *Header) (*SignedHeader, error) {
-	pubDER, err := x509.MarshalPKIXPublicKey(key.Public())
+func (payload *Payload) Sign(key *Key) (*Header, error) {
+	bytes, err := cbor.Marshal(payload)
 	if err != nil {
 		return nil, err
 	}
-	s := cose.Sign1[Header, []byte]{}
-	fmt.Println(s)
-	s.Sign(key, header, pubDER, nil)
-	sh := SignedHeader{
-		IssuerDER: pubDER,
-		Header:    *header,
-		Signature: s,
+	s, err := key.Private.Sign(nil, bytes, &ed25519.Options{
+		Context: key.Did,
+	})
+	if err != nil {
+		return nil, err
 	}
-	return &sh, nil
+	return &Header{
+		Payload:   *payload,
+		Issuer:    key.Did,
+		Signature: s,
+	}, nil
 }
 
-func (sh *SignedHeader) Verify() (bool, error) {
-	pubDER := sh.IssuerDER
-	pub, err := x509.ParsePKIXPublicKey(pubDER)
+func (header *Header) Verify() (bool, error) {
+	bytes, err := cbor.Marshal(header.Payload)
 	if err != nil {
 		return false, err
 	}
-	return sh.Signature.Verify(pub, &sh.Header, pubDER)
+	pub, err := PublicKeyFromDid(header.Issuer)
+	if err != nil {
+		return false, err
+	}
+	err = ed25519.VerifyWithOptions(pub, bytes, header.Signature, &ed25519.Options{
+		Context: header.Issuer,
+	})
+	return err == nil, err
 }
