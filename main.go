@@ -5,35 +5,35 @@ import (
 	"os"
 
 	"github.com/functionally/achain/achain"
-	"github.com/fxamacker/cbor/v2"
 	"github.com/ipfs/go-cid"
 )
 
 func main() {
-
 	k, err := achain.GenerateKey()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(k)
 	err = k.WritePrivateKey("private.pem")
 	if err != nil {
 		panic(err)
 	}
-	k1, err := achain.ReadPrivateKey("private.pem")
+	_, err = achain.ReadPrivateKey("private.pem")
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(k1)
-	body, err := cid.Parse("QmYGc9ncJhbejE4TLbP3NMX5fjHvZioCTFknD6HbnjBvpm")
+	cidBuilder := cid.V1Builder{Codec: cid.Raw, MhType: 0x12}
+	cid1, _ := cidBuilder.Sum([]byte("accept1"))
+	cid2, _ := cidBuilder.Sum([]byte("accept2"))
+	cid3, _ := cidBuilder.Sum([]byte("reject1"))
+	bodyCid, _ := cidBuilder.Sum([]byte("body content"))
 	if err != nil {
 		panic(err)
 	}
 	plain := achain.Payload{
 		Version:   1,
-		Accept:    []cid.Cid{},
-		Reject:    []cid.Cid{},
-		Body:      body,
+		Accept:    []cid.Cid{cid1, cid2},
+		Reject:    []cid.Cid{cid3},
+		Body:      bodyCid,
 		Schema:    "",
 		MediaType: "application/octet-stream",
 	}
@@ -46,18 +46,12 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(zid)
-	fmt.Println(len(zbytes))
-	sigBytes, err := cbor.Marshal(sig)
-	if err != nil {
-		panic(err)
-	}
-	os.WriteFile("tmp.cbor", sigBytes, 0644)
+	os.WriteFile("tmp.cbor", zbytes, 0644)
 	sigBytes1, err := os.ReadFile("tmp.cbor")
 	if err != nil {
 		panic(err)
 	}
-	sig1 := achain.Header{}
-	err = cbor.Unmarshal(sigBytes1, &sig1)
+	sig1, err := achain.UnmarshalHeader(sigBytes1)
 	if err != nil {
 		panic(err)
 	}
