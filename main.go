@@ -10,11 +10,13 @@ import (
 )
 
 func main() {
+
 	k, err := achain.GenerateKey()
 	if err != nil {
 		panic(err)
 	}
-	err = achain.WritePrivateKey("private.pem", k)
+	fmt.Println(k)
+	err = k.WritePrivateKey("private.pem")
 	if err != nil {
 		panic(err)
 	}
@@ -22,12 +24,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(k.Equal(k1))
+	fmt.Println(k1)
 	body, err := cid.Parse("QmYGc9ncJhbejE4TLbP3NMX5fjHvZioCTFknD6HbnjBvpm")
 	if err != nil {
 		panic(err)
 	}
-	plain := achain.Header{
+	plain := achain.Payload{
 		Version:   1,
 		Accept:    []cid.Cid{},
 		Reject:    []cid.Cid{},
@@ -35,7 +37,7 @@ func main() {
 		Schema:    "",
 		MediaType: "application/octet-stream",
 	}
-	sig, err := achain.Sign(k, &plain)
+	sig, err := plain.Sign(k)
 	if err != nil {
 		panic(err)
 	}
@@ -54,7 +56,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	sig1 := achain.SignedHeader{}
+	sig1 := achain.Header{}
 	err = cbor.Unmarshal(sigBytes1, &sig1)
 	if err != nil {
 		panic(err)
