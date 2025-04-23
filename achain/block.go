@@ -1,10 +1,11 @@
 package achain
 
 import (
+	"bytes"
 	"crypto/ed25519"
 
-	"github.com/fido-device-onboard/go-fdo/cbor"
 	"github.com/ipfs/go-cid"
+	"github.com/ipld/go-ipld-prime/codec/dagcbor"
 	"github.com/ipld/go-ipld-prime/datamodel"
 	"github.com/ipld/go-ipld-prime/fluent"
 	cidlink "github.com/ipld/go-ipld-prime/linking/cid"
@@ -56,10 +57,12 @@ func (header *Header) MakeNode() datamodel.Node {
 }
 
 func (header *Header) Marshal() (*cid.Cid, []byte, error) {
-	bytes, err := cbor.Marshal(header)
+	var buffer bytes.Buffer
+	err := dagcbor.Encode(header.MakeNode(), &buffer)
 	if err != nil {
 		return nil, nil, err
 	}
+	bytes := buffer.Bytes()
 	format := cid.V0Builder{}
 	id, err := format.Sum(bytes)
 	if err != nil {
@@ -68,8 +71,14 @@ func (header *Header) Marshal() (*cid.Cid, []byte, error) {
 	return &id, bytes, nil
 }
 
+func (payload *Payload) Marshal() ([]byte, error) {
+	var buffer bytes.Buffer
+	err := dagcbor.Encode(payload.MakeNode(), &buffer)
+	return buffer.Bytes(), err
+}
+
 func (payload *Payload) Sign(key *Key) (*Header, error) {
-	bytes, err := cbor.Marshal(payload)
+	bytes, err := payload.Marshal()
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +96,7 @@ func (payload *Payload) Sign(key *Key) (*Header, error) {
 }
 
 func (header *Header) Verify() (bool, error) {
-	bytes, err := cbor.Marshal(header.Payload)
+	bytes, err := header.Payload.Marshal()
 	if err != nil {
 		return false, err
 	}
