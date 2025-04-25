@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -13,6 +14,7 @@ func main() {
 
 	var keyFile string
 	var headerFile string
+	var resolutionFile string
 	var payload achain.Payload
 	var body string
 	var accepts cli.StringSlice
@@ -28,6 +30,7 @@ func main() {
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:        "key-file",
+						Required:    true,
 						Usage:       "Output file for private key",
 						Destination: &keyFile,
 					},
@@ -51,8 +54,15 @@ func main() {
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:        "key-file",
+						Required:    true,
 						Usage:       "Input file for private key",
 						Destination: &keyFile,
+					},
+					&cli.StringFlag{
+						Name:        "resolution-file",
+						Required:    true,
+						Usage:       "Output file for DID resolution",
+						Destination: &resolutionFile,
 					},
 				},
 				Action: func(*cli.Context) error {
@@ -60,8 +70,15 @@ func main() {
 					if err != nil {
 						return err
 					}
-					// FIXME; Output as JSON.
-					fmt.Println(key.Resolution)
+					resolution, err := json.MarshalIndent(key.Resolution, "", "  ")
+					if err != nil {
+						return fmt.Errorf("failed to marshal DocResolution: %w", err)
+					}
+					err = os.WriteFile(resolutionFile, resolution, 0644)
+					if err != nil {
+						return err
+					}
+
 					return nil
 				},
 			},
