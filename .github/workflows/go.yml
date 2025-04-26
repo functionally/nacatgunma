@@ -25,10 +25,10 @@ jobs:
       run: go test -v ./...
 
     - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: go-binary
-          path: ${{ github.workspace }}/nacatgunma # Adjust path to your binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: go-binary
+        path: ${{ github.workspace }}/nacatgunma # Adjust path to your binary
 
     - name: Generate SLSA Provenance
       uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_generic.yml@v1.2.0
