@@ -127,35 +127,35 @@ func main() {
 							&cli.StringFlag{
 								Name:        "schema",
 								Value:       "DAG-CBOR",
-								Usage:       "Schema for the body",
+								Usage:       "Schema for the block body",
 								Destination: &payload.Schema,
 							},
 							&cli.StringSliceFlag{
 								Name:        "accept",
-								Usage:       "Accept a CID as a parent",
+								Usage:       "Accept a CID as a parent block",
 								Destination: &accepts,
 							},
 							&cli.StringSliceFlag{
 								Name:        "reject",
-								Usage:       "Reject a CID as an ancestor",
+								Usage:       "Reject a CID as an ancestor block",
 								Destination: &rejects,
 							},
 							&cli.StringFlag{
 								Name:        "body",
 								Required:    true,
-								Usage:       "CID for the body",
+								Usage:       "CID for the block body",
 								Destination: &body,
 							},
 							&cli.StringFlag{
 								Name:        "media-type",
 								Value:       "application/cbor",
-								Usage:       "Media type for body",
+								Usage:       "Media type for block body",
 								Destination: &payload.MediaType,
 							},
 							&cli.StringFlag{
 								Name:        "header-file",
 								Required:    true,
-								Usage:       "Output file for the header CBOR",
+								Usage:       "Output file for the block header CBOR",
 								Destination: &headerFile,
 							},
 						},
@@ -207,7 +207,7 @@ func main() {
 							&cli.StringFlag{
 								Name:        "header-file",
 								Required:    true,
-								Usage:       "Input file for the header CBOR",
+								Usage:       "Input file for the block header CBOR",
 								Destination: &headerFile,
 							},
 						},
@@ -238,13 +238,13 @@ func main() {
 							&cli.StringFlag{
 								Name:        "header-file",
 								Required:    true,
-								Usage:       "Input file for the header CBOR",
+								Usage:       "Input file for the block header CBOR",
 								Destination: &headerFile,
 							},
 							&cli.StringFlag{
 								Name:        "output-file",
 								Required:    true,
-								Usage:       "Output JSON file for the header",
+								Usage:       "Output JSON file for the block header",
 								Destination: &jsonFile,
 							},
 						},
@@ -297,7 +297,7 @@ func main() {
 							&cli.StringFlag{
 								Name:        "body-file",
 								Required:    true,
-								Usage:       "Output file for the body",
+								Usage:       "Output file for the block body",
 								Destination: &bodyFile,
 							},
 						},
@@ -330,13 +330,13 @@ func main() {
 							&cli.StringFlag{
 								Name:        "body-file",
 								Required:    true,
-								Usage:       "Input file for the body",
+								Usage:       "Input file for the block body",
 								Destination: &bodyFile,
 							},
 							&cli.StringFlag{
 								Name:        "output-file",
 								Required:    true,
-								Usage:       "Output file for the body",
+								Usage:       "Output file for the block body",
 								Destination: &jsonFile,
 							},
 						},
@@ -365,7 +365,100 @@ func main() {
 				Subcommands: []*cli.Command{
 
 					{
-						Name:  "fetch-block",
+						Name:  "store",
+						Usage: "Store a block on IPFS.",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "ipfs-api",
+								Value:       "localhost:5001",
+								Usage:       "Endpoint for the IPFS API",
+								Destination: &ipfsApi,
+							},
+							&cli.StringFlag{
+								Name:        "key-file",
+								Required:    true,
+								Usage:       "Input file for private key",
+								Destination: &keyFile,
+							},
+							&cli.Int64Flag{
+								Name:        "version",
+								Value:       1,
+								Usage:       "Header version number",
+								Destination: &payload.Version,
+							},
+							&cli.StringFlag{
+								Name:        "schema",
+								Value:       "DAG-CBOR",
+								Usage:       "Schema for the body",
+								Destination: &payload.Schema,
+							},
+							&cli.StringSliceFlag{
+								Name:        "accept",
+								Usage:       "Accept a CID as a parent",
+								Destination: &accepts,
+							},
+							&cli.StringSliceFlag{
+								Name:        "reject",
+								Usage:       "Reject a CID as an ancestor",
+								Destination: &rejects,
+							},
+							&cli.StringFlag{
+								Name:        "body-file",
+								Required:    true,
+								Usage:       "Input file for the block body",
+								Destination: &bodyFile,
+							},
+							&cli.StringFlag{
+								Name:        "media-type",
+								Value:       "application/cbor",
+								Usage:       "Media type for body",
+								Destination: &payload.MediaType,
+							},
+						},
+						Action: func(*cli.Context) error {
+							sh := shell.NewShell(ipfsApi)
+							key, err := key.ReadPrivateKey(keyFile)
+							if err != nil {
+								return err
+							}
+							bodyBytes, err := os.ReadFile(bodyFile)
+							if err != nil {
+								return err
+							}
+							bodyCid, err := ipfs.StoreNode(sh, bodyBytes)
+							if err != nil {
+								return err
+							}
+							payload.Body = *bodyCid
+							acceptCids, err := parseCIDs(uniqueStrings(accepts.Value()))
+							if err != nil {
+								return err
+							}
+							payload.Accept = acceptCids
+							rejectCids, err := parseCIDs(uniqueStrings(rejects.Value()))
+							if err != nil {
+								return err
+							}
+							payload.Reject = rejectCids
+							header, err := payload.Sign(key)
+							if err != nil {
+								return err
+							}
+							headerBytes, err := header.Marshal()
+							if err != nil {
+								return err
+							}
+							headerCid, err := ipfs.StoreNode(sh, headerBytes)
+							if err != nil {
+								return err
+							}
+							fmt.Println(headerCid)
+							return nil
+						},
+					},
+
+					{
+						Name:  "fetch",
 						Usage: "Fetch a block header and body from IPFS.",
 						Flags: []cli.Flag{
 							&cli.StringFlag{

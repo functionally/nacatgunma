@@ -191,10 +191,24 @@ json2yaml body.json
 ```
 
 
+### Store a block on IPFS
+
+```bash
+nacatgunma ipfs store \
+  --key-file private.pem \
+  --body-file body.cbor \
+  --accept bafyreid32eo34hcksuilttqhoyhssoz36r5umtk6zallvgoxqlehsqltru
+```
+
+```console
+bafyreib5fuk4qex34is3pt52ij4jddlnsevkys7jwa6v2lp2qrs2eoq5he
+```
+
+
 ### Fetch a block from IPFS
 
 ```bash
-nacatgunma ipfs fetch-block \
+nacatgunma ipfs fetch \
   --header-cid bafyreib5fuk4qex34is3pt52ij4jddlnsevkys7jwa6v2lp2qrs2eoq5he \
   --header-file h.cbor \
   --body-file b.cbor
