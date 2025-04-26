@@ -178,6 +178,7 @@ json2yaml body.json
 ```
 
 ```console
+'@context':
   knows: http://schema.org/knows
   name: http://schema.org/name
 '@graph':
