@@ -8,7 +8,7 @@ go build -o nacatgunma main.go
 ```
 
 
-## Generate a prive key
+## Generate a private key
 
 ```bash
 ./nacatgunma key generate \
@@ -23,7 +23,7 @@ did:key:z6Mkrpqbu1hJWGHCuTa9Z9SDaCp8VJa82dLYhhCWYiyye6Nr
 cat private.pem
 ```
 
-```asc
+```console
 -----BEGIN ED25519 PRIVATE KEY-----
 MC4CAQAwBQYDK2VwBCIEIDwz2pHLuwjP+rIrsLEwWhxoHq5iyZvWGFy/k44sHFCR
 -----END ED25519 PRIVATE KEY-----
@@ -34,13 +34,13 @@ MC4CAQAwBQYDK2VwBCIEIDwz2pHLuwjP+rIrsLEwWhxoHq5iyZvWGFy/k44sHFCR
 
 ```bash
 ./nacatgunma key resolve \
-  --key-file private.pem \
+  --key-did "did:key:z6Mkrpqbu1hJWGHCuTa9Z9SDaCp8VJa82dLYhhCWYiyye6Nr" \
   --output-file resolution.json
 
 json2yaml resolution.json
 ```
 
-```yaml
+```console
 Context:
 - https://w3id.org/did-resolution/v1
 DIDDocument:
