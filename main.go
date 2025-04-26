@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/ipfs/go-cid"
+	shell "github.com/ipfs/go-ipfs-api"
 	"github.com/urfave/cli/v2"
 
 	"github.com/functionally/nacatgunma/header"
@@ -24,6 +25,8 @@ func main() {
 	var baseUri string
 	var format string
 	var keyDid string
+	var headerCid string
+	var ipfsApi string
 	var payload header.Payload
 	var body string
 	var accepts cli.StringSlice
@@ -184,7 +187,7 @@ func main() {
 							if err != nil {
 								return err
 							}
-							headerCid, err := ipfs.CidV0(headerBytes)
+							headerCid, err := ipfs.CidV1(headerBytes)
 							if err != nil {
 								return err
 							}
@@ -301,19 +304,19 @@ func main() {
 						Action: func(*cli.Context) error {
 							rdf, err := rdf.ReadRdf(rdfFile, baseUri, format)
 							if err != nil {
-								return nil
+								return err
 							}
 							bodyBytes, err := ipfs.EncodeToDagCbor(rdf)
 							if err != nil {
-								return nil
+								return err
 							}
-							bodyCid, err := ipfs.CidV0(bodyBytes)
+							bodyCid, err := ipfs.CidV1(bodyBytes)
 							if err != nil {
 								return err
 							}
 							err = os.WriteFile(bodyFile, bodyBytes, 0644)
 							if err != nil {
-								return nil
+								return err
 							}
 							fmt.Println(bodyCid)
 							return nil
@@ -351,6 +354,68 @@ func main() {
 								return fmt.Errorf("failed to marshal body: %w", err)
 							}
 							return os.WriteFile(jsonFile, json, 0644)
+						},
+					},
+				},
+			},
+
+			{
+				Name:  "ipfs",
+				Usage: "Interact with IPFS",
+				Subcommands: []*cli.Command{
+
+					{
+						Name:  "fetch-block",
+						Usage: "Fetch a block header and body from IPFS.",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "ipfs-api",
+								Value:       "localhost:5001",
+								Usage:       "Endpoint for the IPFS API",
+								Destination: &ipfsApi,
+							},
+							&cli.StringFlag{
+								Name:        "header-cid",
+								Required:    true,
+								Usage:       "The CID for the block header",
+								Destination: &headerCid,
+							},
+							&cli.StringFlag{
+								Name:        "header-file",
+								Required:    true,
+								Usage:       "Output file for the header",
+								Destination: &headerFile,
+							},
+							&cli.StringFlag{
+								Name:        "body-file",
+								Required:    true,
+								Usage:       "Output file for the body",
+								Destination: &bodyFile,
+							},
+						},
+						Action: func(*cli.Context) error {
+							sh := shell.NewShell(ipfsApi)
+							hdrBytes, err := ipfs.FetchNode(sh, headerCid)
+							if err != nil {
+								return err
+							}
+							hdr, err := header.UnmarshalHeader(hdrBytes)
+							if err != nil {
+								return err
+							}
+							bdyBytes, err := ipfs.FetchNode(sh, hdr.Payload.Body.String())
+							if err != nil {
+								return err
+							}
+							err = os.WriteFile(headerFile, hdrBytes, 0644)
+							if err != nil {
+								return err
+							}
+							err = os.WriteFile(bodyFile, bdyBytes, 0644)
+							if err != nil {
+								return err
+							}
+							return nil
 						},
 					},
 				},

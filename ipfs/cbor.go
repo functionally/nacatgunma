@@ -8,6 +8,7 @@ import (
 	"github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/codec/dagcbor"
 	"github.com/ipld/go-ipld-prime/node/basicnode"
+	"github.com/multiformats/go-multihash"
 )
 
 func EncodeToDagCbor(doc interface{}) ([]byte, error) {
@@ -67,6 +68,15 @@ func CidV0(bytes []byte) (*cid.Cid, error) {
 	if err != nil {
 		return nil, err
 	}
+	return &id, nil
+}
+
+func CidV1(bytes []byte) (*cid.Cid, error) {
+	hash, err := multihash.Sum(bytes, multihash.SHA2_256, -1)
+	if err != nil {
+		return nil, err
+	}
+	id := cid.NewCidV1(cid.DagCBOR, hash)
 	return &id, nil
 }
 
