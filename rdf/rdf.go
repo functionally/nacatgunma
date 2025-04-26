@@ -2,7 +2,7 @@ package rdf
 
 import (
 	"bufio"
-	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -13,55 +13,54 @@ import (
 	"gonum.org/v1/gonum/graph/formats/rdf"
 )
 
-func ReadRdf(filename string, baseUri string) (interface{}, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	dataset, err := parseNQuads(bufio.NewReader(file))
+func ReadRdf(filename string, baseUri string, format string) (interface{}, error) {
+	dataset, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 	proc := ld.NewJsonLdProcessor()
 	options := ld.NewJsonLdOptions(baseUri)
-	options.Format = "application/n-quads"
+	options.Format = format
 	expandedDoc, err := proc.FromRDF(dataset, options)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(expandedDoc)
 	context := generateContext(expandedDoc)
+	fmt.Println(context)
 	return proc.Compact(expandedDoc, context, options)
-}
-
-func parseNQuads(r io.Reader) (string, error) {
-	buf := new(bytes.Buffer)
-	_, err := buf.ReadFrom(r)
-	if err != nil {
-		return "", err
-	}
-	return buf.String(), nil
 }
 
 func generateContext(doc interface{}) map[string]interface{} {
 	ctx := make(map[string]interface{})
-	graph, ok := doc.([]interface{})
-	if !ok {
-		return ctx
-	}
-	for _, node := range graph {
-		nodeMap, ok := node.(map[string]interface{})
-		if !ok {
-			continue
-		}
-		for k := range nodeMap {
-			if strings.HasPrefix(k, "http") {
-				short := shorten(k)
-				ctx[short] = k
-			}
-		}
-	}
+	scanForPredicates(doc, ctx)
 	return ctx
+}
+
+func scanForPredicates(value interface{}, ctx map[string]interface{}) {
+	switch v := value.(type) {
+	case map[string]interface{}:
+		for k, val := range v {
+			if isIRI(k) {
+				short := shorten(k)
+				if _, exists := ctx[short]; !exists {
+					ctx[short] = k
+				}
+			}
+			scanForPredicates(val, ctx)
+		}
+	case []interface{}:
+		for _, item := range v {
+			scanForPredicates(item, ctx)
+		}
+	}
+}
+
+func isIRI(k string) bool {
+	if strings.HasPrefix(k, "@") {
+		return false
+	}
+	return strings.Contains(k, ":")
 }
 
 func shorten(iri string) string {

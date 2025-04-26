@@ -1,25 +1,32 @@
-name: Go
+name: Go with SLSA Level 3
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  release:
+    types: [ published ]
+
+permissions:
+  id-token: write # to sign attestation
+  contents: write # to upload assets
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for accurate provenance
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.23.0'
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
 
-    - name: Build
-      run: go build -v ./...
+      - name: Build
+        run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
+      - name: Test
+        run: go test -v ./...

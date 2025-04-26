@@ -22,6 +22,7 @@ func main() {
 	var rdfFile string
 	var bodyFile string
 	var baseUri string
+	var format string
 	var keyDid string
 	var payload header.Payload
 	var body string
@@ -285,6 +286,12 @@ func main() {
 								Destination: &baseUri,
 							},
 							&cli.StringFlag{
+								Name:        "format",
+								Value:       "application/n-quads",
+								Usage:       "MIME type of the RDF format",
+								Destination: &format,
+							},
+							&cli.StringFlag{
 								Name:        "body-file",
 								Required:    true,
 								Usage:       "Output file for the body",
@@ -292,7 +299,7 @@ func main() {
 							},
 						},
 						Action: func(*cli.Context) error {
-							rdf, err := rdf.ReadRdf(rdfFile, baseUri)
+							rdf, err := rdf.ReadRdf(rdfFile, baseUri, format)
 							if err != nil {
 								return nil
 							}
