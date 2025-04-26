@@ -1,17 +1,22 @@
-# Examples
+# Nacatgunma
+
+Nacatgunma is an experimental blockchain that supports fluid consensus.
 
 
-## Build the CLI executable
+## CLI examples
+
+
+### Build the CLI executable
 
 ```bash
 go build -o nacatgunma main.go
 ```
 
 
-## Generate a private key
+### Generate a private key
 
 ```bash
-./nacatgunma key generate \
+nacatgunma key generate \
   --key-file private.pem
 ```
 
@@ -30,10 +35,10 @@ MC4CAQAwBQYDK2VwBCIEIDwz2pHLuwjP+rIrsLEwWhxoHq5iyZvWGFy/k44sHFCR
 ```
 
 
-## Resolve the DID for a public key
+### Resolve the DID for a public key
 
 ```bash
-./nacatgunma key resolve \
+nacatgunma key resolve \
   --key-did "did:key:z6Mkrpqbu1hJWGHCuTa9Z9SDaCp8VJa82dLYhhCWYiyye6Nr" \
   --output-file resolution.json
 
@@ -70,10 +75,10 @@ DIDDocument:
 DocumentMetadata: null
 ```
 
-## Build a block header
+### Build a block header
 
 ```bash
-./nacatgunma header build \
+nacatgunma header build \
   --key-file private.pem \
   --body QmXUuPakG4UHBs7BBQKS6o3vKeZJkRy7yTY4Pu1iGSr2PY \
   --accept QmXUuPakG4UHBs7BBQKS6o3vKeZJkRy7yTY4Pu1iGSr2PY \
@@ -93,10 +98,10 @@ cbordump header.cbor
 {"Issuer": "did:key:z6Mkrpqbu1hJWGHCuTa9Z9SDaCp8VJa82dLYhhCWYiyye6Nr", "Payload": {"Body": 42(h'00122087d66da12bd9f0855fed372f7c05f2dae6fd1cec5e436dcfc26b93efc5413317'), "Accept": [42(h'00122087d66da12bd9f0855fed372f7c05f2dae6fd1cec5e436dcfc26b93efc5413317')], "Reject": [], "Schema": "DAG-CBOR", "Version": 1, "MediaType": "application/cbor"}, "Signature": h'fd4a7dcef37ff0d7fdb91d24702e4f4a02d1f9ce27631d862f85d5298479861ddfb06b2fc040869f0d04e6479ef590e3da86652f2f36e9b29c3d057e0b80f107'}
 ```
 
-## Verify a block header
+### Verify a block header
 
 ```bash
-./nacatgunma header verify \
+nacatgunma header verify \
   --header-file header.cbor
 ```
 
@@ -113,10 +118,10 @@ echo $?
 ```
 
 
-## Export a block header as JSON
+### Export a block header as JSON
 
 ```bash
-./nacatgunma header export \
+nacatgunma header export \
   --header-file header.cbor \
   --output-file header.json
 
@@ -135,4 +140,48 @@ Payload:
   MediaType: application/cbor
 Issuer: did:key:z6Mkrpqbu1hJWGHCuTa9Z9SDaCp8VJa82dLYhhCWYiyye6Nr
 Signature: /Up9zvN/8Nf9uR0kcC5PSgLR+c4nYx2GL4XVKYR5hh3fsGsvwECGnw0E5kee9ZDj2oZlLy826bKcPQV+C4DxBw==
+```
+
+
+### Create a block body from RDF N-quads
+
+```bash
+nacatgunma body rdf \
+  --rdf-file body.nq \
+  --base-uri http://example.org/person \
+  --body-file body.cbor
+```
+
+```console
+QmP8CHrZKFaGrG4HFBq8zzDfbpywEpU2ASPK4hSLFHtQPw
+```
+
+```bash
+cbordump body.cbor
+```
+
+```console
+{"@id": "g1", "@graph": [{"@id": "#1234", "http://schema.org/name": "Alice", "http://schema.org/knows": {"@id": "#5678"}}, {"@id": "#5678", "http://schema.org/name": "Bob"}]}
+```
+
+
+### Export a block body as JSON
+
+```bash
+nacatgunma body export \
+  --body-file body.cbor \
+  --output-file body.json
+
+json2yaml body.json
+```
+
+```console
+'@graph':
+- '@id': '#1234'
+  http://schema.org/knows:
+    '@id': '#5678'
+  http://schema.org/name: Alice
+- '@id': '#5678'
+  http://schema.org/name: Bob
+'@id': g1
 ```

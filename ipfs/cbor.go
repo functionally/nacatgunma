@@ -10,7 +10,7 @@ import (
 	"github.com/ipld/go-ipld-prime/node/basicnode"
 )
 
-func EncodeToDAGCBOR(doc interface{}) ([]byte, error) {
+func EncodeToDagCbor(doc interface{}) ([]byte, error) {
 	builder := basicnode.Prototype.Any.NewBuilder()
 	err := assembleFromInterface(doc, builder)
 	if err != nil {
@@ -70,7 +70,7 @@ func CidV0(bytes []byte) (*cid.Cid, error) {
 	return &id, nil
 }
 
-func DecodeFromDAGCBOR(data []byte) (interface{}, error) {
+func DecodeFromDagCbor(data []byte) (interface{}, error) {
 	builder := basicnode.Prototype.Any.NewBuilder()
 	err := dagcbor.Decode(builder, bytes.NewReader(data))
 	if err != nil {
@@ -121,6 +121,6 @@ func nodeToInterface(n ipld.Node) (interface{}, error) {
 	case ipld.Kind_Null:
 		return nil, nil
 	default:
-		return nil, nil
+		return nil, fmt.Errorf("incompatible CBOR type for JSON")
 	}
 }

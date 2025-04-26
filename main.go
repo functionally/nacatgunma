@@ -296,7 +296,7 @@ func main() {
 							if err != nil {
 								return nil
 							}
-							bodyBytes, err := ipfs.EncodeToDAGCBOR(rdf)
+							bodyBytes, err := ipfs.EncodeToDagCbor(rdf)
 							if err != nil {
 								return nil
 							}
@@ -335,7 +335,7 @@ func main() {
 							if err != nil {
 								return err
 							}
-							body, err := ipfs.DecodeFromDAGCBOR(bodyBytes)
+							body, err := ipfs.DecodeFromDagCbor(bodyBytes)
 							if err != nil {
 								return err
 							}
