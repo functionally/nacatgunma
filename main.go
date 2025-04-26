@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/functionally/achain/achain"
+	"github.com/functionally/nacatgunma/nacatgunma"
 	"github.com/ipfs/go-cid"
 	"github.com/urfave/cli/v2"
 )
@@ -15,13 +15,13 @@ func main() {
 	var keyFile string
 	var headerFile string
 	var resolutionFile string
-	var payload achain.Payload
+	var payload nacatgunma.Payload
 	var body string
 	var accepts cli.StringSlice
 	var rejects cli.StringSlice
 
 	app := &cli.App{
-		Name:  "achain",
+		Name:  "nacatgunma",
 		Usage: "Manage the AChain.",
 		Commands: []*cli.Command{
 			{
@@ -36,7 +36,7 @@ func main() {
 					},
 				},
 				Action: func(*cli.Context) error {
-					key, err := achain.GenerateKey()
+					key, err := nacatgunma.GenerateKey()
 					if err != nil {
 						return err
 					}
@@ -66,7 +66,7 @@ func main() {
 					},
 				},
 				Action: func(*cli.Context) error {
-					key, err := achain.ReadPrivateKey(keyFile)
+					key, err := nacatgunma.ReadPrivateKey(keyFile)
 					if err != nil {
 						return err
 					}
@@ -133,7 +133,7 @@ func main() {
 					},
 				},
 				Action: func(*cli.Context) error {
-					key, err := achain.ReadPrivateKey(keyFile)
+					key, err := nacatgunma.ReadPrivateKey(keyFile)
 					if err != nil {
 						return err
 					}
@@ -184,7 +184,7 @@ func main() {
 					if err != nil {
 						return err
 					}
-					header, err := achain.UnmarshalHeader(headerBytes)
+					header, err := nacatgunma.UnmarshalHeader(headerBytes)
 					if err != nil {
 						return err
 					}

@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-go build -o achain main.go
+go build -o nacatgunma main.go
