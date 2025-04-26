@@ -16,7 +16,7 @@ func main() {
 
 	var keyFile string
 	var headerFile string
-	var resolutionFile string
+	var jsonFile string
 	var payload header.Payload
 	var body string
 	var accepts cli.StringSlice
@@ -24,7 +24,7 @@ func main() {
 
 	app := &cli.App{
 		Name:  "nacatgunma",
-		Usage: "Manage the AChain.",
+		Usage: "Manage the Nacatgunma blockchain.",
 		Commands: []*cli.Command{
 
 			{
@@ -68,10 +68,10 @@ func main() {
 								Destination: &keyFile,
 							},
 							&cli.StringFlag{
-								Name:        "resolution-file",
+								Name:        "output-file",
 								Required:    true,
-								Usage:       "Output file for DID resolution",
-								Destination: &resolutionFile,
+								Usage:       "Output JSON file for DID resolution",
+								Destination: &jsonFile,
 							},
 						},
 						Action: func(*cli.Context) error {
@@ -79,11 +79,11 @@ func main() {
 							if err != nil {
 								return err
 							}
-							resolution, err := json.MarshalIndent(key.Resolution, "", "  ")
+							json, err := json.MarshalIndent(key.Resolution, "", "  ")
 							if err != nil {
 								return fmt.Errorf("failed to marshal DocResolution: %w", err)
 							}
-							err = os.WriteFile(resolutionFile, resolution, 0644)
+							err = os.WriteFile(jsonFile, json, 0644)
 							if err != nil {
 								return err
 							}
@@ -212,6 +212,44 @@ func main() {
 								return fmt.Errorf("signature verification failed")
 							}
 							fmt.Printf("Verified signature by %s\n", header.Issuer)
+							return nil
+						},
+					},
+
+					{
+						Name:  "export",
+						Usage: "Export a block header to JSON.",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "header-file",
+								Required:    true,
+								Usage:       "Input file for the header CBOR",
+								Destination: &headerFile,
+							},
+							&cli.StringFlag{
+								Name:        "output-file",
+								Required:    true,
+								Usage:       "Output JSON file for the header",
+								Destination: &jsonFile,
+							},
+						},
+						Action: func(*cli.Context) error {
+							headerBytes, err := os.ReadFile(headerFile)
+							if err != nil {
+								return err
+							}
+							header, err := header.UnmarshalHeader(headerBytes)
+							if err != nil {
+								return err
+							}
+							json, err := json.MarshalIndent(header, "", "  ")
+							if err != nil {
+								return fmt.Errorf("failed to marshal Header: %w", err)
+							}
+							err = os.WriteFile(jsonFile, json, 0644)
+							if err != nil {
+								return err
+							}
 							return nil
 						},
 					},
