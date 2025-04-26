@@ -17,6 +17,7 @@ func main() {
 	var keyFile string
 	var headerFile string
 	var jsonFile string
+	var keyDid string
 	var payload header.Payload
 	var body string
 	var accepts cli.StringSlice
@@ -62,10 +63,10 @@ func main() {
 						Usage: "Resolve an Ed25519 key.",
 						Flags: []cli.Flag{
 							&cli.StringFlag{
-								Name:        "key-file",
+								Name:        "key-did",
 								Required:    true,
-								Usage:       "Input file for private key",
-								Destination: &keyFile,
+								Usage:       "The DID for the public key",
+								Destination: &keyDid,
 							},
 							&cli.StringFlag{
 								Name:        "output-file",
@@ -75,11 +76,11 @@ func main() {
 							},
 						},
 						Action: func(*cli.Context) error {
-							key, err := key.ReadPrivateKey(keyFile)
+							resolution, err := key.ResolveDid(keyDid)
 							if err != nil {
 								return err
 							}
-							json, err := json.MarshalIndent(key.Resolution, "", "  ")
+							json, err := json.MarshalIndent(resolution, "", "  ")
 							if err != nil {
 								return fmt.Errorf("failed to marshal DocResolution: %w", err)
 							}

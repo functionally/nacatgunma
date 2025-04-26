@@ -106,3 +106,7 @@ func PublicKeyFromDid(did string) ([]byte, error) {
 	}
 	return data[2:], nil
 }
+
+func ResolveDid(did string) (*did.DocResolution, error) {
+	return key.New().Read(did)
+}
