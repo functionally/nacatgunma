@@ -2,7 +2,7 @@ package rdf
 
 import (
 	"bufio"
-	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -14,12 +14,7 @@ import (
 )
 
 func ReadRdf(filename string, baseUri string) (interface{}, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	dataset, err := parseNQuads(bufio.NewReader(file))
+	dataset, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
@@ -30,17 +25,10 @@ func ReadRdf(filename string, baseUri string) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(expandedDoc)
 	context := generateContext(expandedDoc)
+	fmt.Println(context)
 	return proc.Compact(expandedDoc, context, options)
-}
-
-func parseNQuads(r io.Reader) (string, error) {
-	buf := new(bytes.Buffer)
-	_, err := buf.ReadFrom(r)
-	if err != nil {
-		return "", err
-	}
-	return buf.String(), nil
 }
 
 func generateContext(doc interface{}) map[string]interface{} {
