@@ -13,14 +13,14 @@ import (
 	"gonum.org/v1/gonum/graph/formats/rdf"
 )
 
-func ReadRdf(filename string, baseUri string) (interface{}, error) {
+func ReadRdf(filename string, baseUri string, format string) (interface{}, error) {
 	dataset, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 	proc := ld.NewJsonLdProcessor()
 	options := ld.NewJsonLdOptions(baseUri)
-	options.Format = "application/n-quads"
+	options.Format = format
 	expandedDoc, err := proc.FromRDF(dataset, options)
 	if err != nil {
 		return nil, err
