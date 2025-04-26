@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/ed25519"
 
-	"github.com/ipfs/go-cid"
 	"github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/codec/dagcbor"
 	"github.com/ipld/go-ipld-prime/datamodel"
@@ -29,19 +28,13 @@ func (header *Header) MakeNode() datamodel.Node {
 		})
 }
 
-func (header *Header) Marshal() (*cid.Cid, []byte, error) {
+func (header *Header) Marshal() ([]byte, error) {
 	var buffer bytes.Buffer
 	err := dagcbor.Encode(header.MakeNode(), &buffer)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	bytes := buffer.Bytes()
-	format := cid.V0Builder{}
-	id, err := format.Sum(bytes)
-	if err != nil {
-		return nil, nil, err
-	}
-	return &id, bytes, nil
+	return buffer.Bytes(), nil
 }
 
 func decodeHeader(node ipld.Node) (*Header, error) {

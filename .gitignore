@@ -6,3 +6,4 @@ tmp/
 nacatgunma
 *.cbor
 *.json
+*.nq

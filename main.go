@@ -9,7 +9,9 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/functionally/nacatgunma/header"
+	"github.com/functionally/nacatgunma/ipfs"
 	"github.com/functionally/nacatgunma/key"
+	"github.com/functionally/nacatgunma/rdf"
 )
 
 func main() {
@@ -17,6 +19,9 @@ func main() {
 	var keyFile string
 	var headerFile string
 	var jsonFile string
+	var rdfFile string
+	var bodyFile string
+	var baseUri string
 	var keyDid string
 	var payload header.Payload
 	var body string
@@ -133,6 +138,7 @@ func main() {
 							},
 							&cli.StringFlag{
 								Name:        "body",
+								Required:    true,
 								Usage:       "CID for the body",
 								Destination: &body,
 							},
@@ -173,7 +179,11 @@ func main() {
 							if err != nil {
 								return err
 							}
-							headerCid, headerBytes, err := header.Marshal()
+							headerBytes, err := header.Marshal()
+							if err != nil {
+								return err
+							}
+							headerCid, err := ipfs.CidV0(headerBytes)
 							if err != nil {
 								return err
 							}
@@ -251,6 +261,58 @@ func main() {
 							if err != nil {
 								return err
 							}
+							return nil
+						},
+					},
+				},
+			},
+
+			{
+				Name:  "body",
+				Usage: "Body management subcommands",
+				Subcommands: []*cli.Command{
+
+					{
+						Name:  "rdf",
+						Usage: "Build a block of RDF N-quads.",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "rdf-file",
+								Required:    true,
+								Usage:       "Input file of RDF N-quads",
+								Destination: &rdfFile,
+							},
+							&cli.StringFlag{
+								Name:        "base-uri",
+								Value:       "",
+								Usage:       "Base URI of the RDF",
+								Destination: &baseUri,
+							},
+							&cli.StringFlag{
+								Name:        "body-file",
+								Required:    true,
+								Usage:       "Output file for the body",
+								Destination: &bodyFile,
+							},
+						},
+						Action: func(*cli.Context) error {
+							rdf, err := rdf.ReadRdf(rdfFile, baseUri)
+							if err != nil {
+								return nil
+							}
+							bodyBytes, err := ipfs.EncodeToDAGCBOR(rdf)
+							if err != nil {
+								return nil
+							}
+							bodyCid, err := ipfs.CidV0(bodyBytes)
+							if err != nil {
+								return err
+							}
+							err = os.WriteFile(bodyFile, bodyBytes, 0644)
+							if err != nil {
+								return nil
+							}
+							fmt.Println(bodyCid)
 							return nil
 						},
 					},
