@@ -81,14 +81,13 @@ DocumentMetadata: null
 ```bash
 nacatgunma header build \
   --key-file private.pem \
-  --body QmXUuPakG4UHBs7BBQKS6o3vKeZJkRy7yTY4Pu1iGSr2PY \
-  --accept QmXUuPakG4UHBs7BBQKS6o3vKeZJkRy7yTY4Pu1iGSr2PY \
-  --accept QmXUuPakG4UHBs7BBQKS6o3vKeZJkRy7yTY4Pu1iGSr2PY \
+  --body bafyreiea2su23cm4nbfl3675m442gp5yo5qmghspjikeeeioudyls2jjtm \
+  --accept bafyreid32eo34hcksuilttqhoyhssoz36r5umtk6zallvgoxqlehsqltru \
   --header-file header.cbor
 ```
 
 ```console
-QmTZaQgzYc8Jupb1zcmw4C66ign47n32pHyRL9hUreQvAN
+bafyreib5fuk4qex34is3pt52ij4jddlnsevkys7jwa6v2lp2qrs2eoq5he
 ```
 
 ```bash
@@ -96,7 +95,7 @@ cbordump header.cbor
 ```
 
 ```console
-{"Issuer": "did:key:z6Mkrpqbu1hJWGHCuTa9Z9SDaCp8VJa82dLYhhCWYiyye6Nr", "Payload": {"Body": 42(h'00122087d66da12bd9f0855fed372f7c05f2dae6fd1cec5e436dcfc26b93efc5413317'), "Accept": [42(h'00122087d66da12bd9f0855fed372f7c05f2dae6fd1cec5e436dcfc26b93efc5413317')], "Reject": [], "Schema": "DAG-CBOR", "Version": 1, "MediaType": "application/cbor"}, "Signature": h'fd4a7dcef37ff0d7fdb91d24702e4f4a02d1f9ce27631d862f85d5298479861ddfb06b2fc040869f0d04e6479ef590e3da86652f2f36e9b29c3d057e0b80f107'}
+{"Issuer": "did:key:z6Mkrpqbu1hJWGHCuTa9Z9SDaCp8VJa82dLYhhCWYiyye6Nr", "Payload": {"Body": 42(h'000171122080d4a9ad899c684abdfbfd6739a33fb87760c31e4f4a1442110ea0f0b969299b'), "Accept": [42(h'00017112207bd11dbe1c4a9510b9ce07760f293b3bf47b464d5ec816ba99d782c87941738d')], "Reject": [], "Schema": "DAG-CBOR", "Version": 1, "MediaType": "application/cbor"}, "Signature": h'6801ce78df1867c633fdc4b8a13fd7a5b81c93751ee9c9688e5b35a7f4e74756eefc4e6b22241f13c721fe9185b8a1fa2b41752ae5254f78bcf9025ed837990e'}
 ```
 
 
@@ -155,7 +154,7 @@ nacatgunma body rdf \
 ```
 
 ```console
-QmP8CHrZKFaGrG4HFBq8zzDfbpywEpU2ASPK4hSLFHtQPw
+bafyreiea2su23cm4nbfl3675m442gp5yo5qmghspjikeeeioudyls2jjtm
 ```
 
 ```bash
@@ -189,4 +188,14 @@ json2yaml body.json
 - '@id': '#5678'
   name: Bob
 '@id': g1
+```
+
+
+### Fetch a block from IPFS
+
+```bash
+nacatgunma ipfs fetch-block \
+  --header-cid bafyreib5fuk4qex34is3pt52ij4jddlnsevkys7jwa6v2lp2qrs2eoq5he \
+  --header-file h.cbor \
+  --body-file b.cbor
 ```
