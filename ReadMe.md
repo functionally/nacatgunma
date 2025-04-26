@@ -75,6 +75,7 @@ DIDDocument:
 DocumentMetadata: null
 ```
 
+
 ### Build a block header
 
 ```bash
@@ -97,6 +98,7 @@ cbordump header.cbor
 ```console
 {"Issuer": "did:key:z6Mkrpqbu1hJWGHCuTa9Z9SDaCp8VJa82dLYhhCWYiyye6Nr", "Payload": {"Body": 42(h'00122087d66da12bd9f0855fed372f7c05f2dae6fd1cec5e436dcfc26b93efc5413317'), "Accept": [42(h'00122087d66da12bd9f0855fed372f7c05f2dae6fd1cec5e436dcfc26b93efc5413317')], "Reject": [], "Schema": "DAG-CBOR", "Version": 1, "MediaType": "application/cbor"}, "Signature": h'fd4a7dcef37ff0d7fdb91d24702e4f4a02d1f9ce27631d862f85d5298479861ddfb06b2fc040869f0d04e6479ef590e3da86652f2f36e9b29c3d057e0b80f107'}
 ```
+
 
 ### Verify a block header
 
@@ -161,7 +163,7 @@ cbordump body.cbor
 ```
 
 ```console
-{"@id": "g1", "@graph": [{"@id": "#1234", "http://schema.org/name": "Alice", "http://schema.org/knows": {"@id": "#5678"}}, {"@id": "#5678", "http://schema.org/name": "Bob"}]}
+{"@id": "g1", "@graph": [{"@id": "#1234", "name": "Alice", "knows": {"@id": "#5678"}}, {"@id": "#5678", "name": "Bob"}], "@context": {"name": "http://schema.org/name", "knows": "http://schema.org/knows"}}
 ```
 
 
