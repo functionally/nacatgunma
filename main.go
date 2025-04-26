@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/functionally/nacatgunma/nacatgunma"
 	"github.com/ipfs/go-cid"
 	"github.com/urfave/cli/v2"
+
+	"github.com/functionally/nacatgunma/header"
+	"github.com/functionally/nacatgunma/key"
 )
 
 func main() {
@@ -15,7 +17,7 @@ func main() {
 	var keyFile string
 	var headerFile string
 	var resolutionFile string
-	var payload nacatgunma.Payload
+	var payload header.Payload
 	var body string
 	var accepts cli.StringSlice
 	var rejects cli.StringSlice
@@ -36,7 +38,7 @@ func main() {
 					},
 				},
 				Action: func(*cli.Context) error {
-					key, err := nacatgunma.GenerateKey()
+					key, err := key.GenerateKey()
 					if err != nil {
 						return err
 					}
@@ -66,7 +68,7 @@ func main() {
 					},
 				},
 				Action: func(*cli.Context) error {
-					key, err := nacatgunma.ReadPrivateKey(keyFile)
+					key, err := key.ReadPrivateKey(keyFile)
 					if err != nil {
 						return err
 					}
@@ -133,7 +135,7 @@ func main() {
 					},
 				},
 				Action: func(*cli.Context) error {
-					key, err := nacatgunma.ReadPrivateKey(keyFile)
+					key, err := key.ReadPrivateKey(keyFile)
 					if err != nil {
 						return err
 					}
@@ -184,7 +186,7 @@ func main() {
 					if err != nil {
 						return err
 					}
-					header, err := nacatgunma.UnmarshalHeader(headerBytes)
+					header, err := header.UnmarshalHeader(headerBytes)
 					if err != nil {
 						return err
 					}
