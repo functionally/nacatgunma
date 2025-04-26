@@ -1,47 +1,75 @@
-name: Go
+name: Go with SLSA Level 3
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  release:
+    types: [ published ]
+
+permissions:
+  id-token: write # to sign attestation
+  contents: write # to upload assets
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for accurate provenance
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.23'
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
 
-    - name: Build
-      run: go build -v ./...
+      - name: Build
+        run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
+      - name: Test
+        run: go test -v ./...
 
-    - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: go-binary
-        path: ${{ github.workspace }}/nacatgunma # Adjust path to your binary
+      - name: Upload Artifacts
+        id: upload-binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-binary
+          path: ${{ github.workspace }}/nacatgunma # Adjust path to your binary
 
-    - name: Generate SLSA Provenance
-      uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_generic.yml@v1.2.0
-      with:
-        go-version: '^1.23' # Must match the Go version used for building
-        command: go build -v ./... # Must match the build command
-        digest: ${{ jobs.slsa-build.outputs.digest }}
-        upload-assets: true
-#       provenance-upload-uri: ${{ github.event.inputs.provenance_upload_uri }} # Optional: for external storage
+  generate-slsa:
+    needs: build # Ensure 'build' job completes first
+    runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.slsa_provenance.outputs.digest }} # Capture the digest
 
-    - name: Upload Provenance Artifact
-      if: steps.generate-provenance.outcome == 'success'
-      uses: actions/upload-artifact@v4
-      with:
-        name: provenance
-        path: provenance.intoto.jsonl
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: go-binary
+          path: built-binary
+
+      - name: Calculate Digest
+        id: calculate_digest
+        run: |
+          cd built-binary
+          echo "digest=$(sha256sum nacatgunma | awk '{print $1}')" >> $GITHUB_OUTPUT
+
+      - name: Generate SLSA Provenance
+        id: slsa_provenance
+        uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_generic.yml@v1.2.0
+        with:
+          go-version: '1.23'
+          command: go build -v ./...
+          digest: ${{ steps.calculate_digest.outputs.digest }}
+          upload-assets: true
+
+      - name: Upload Provenance Artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: provenance
+          path: provenance.intoto.jsonl
+
