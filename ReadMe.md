@@ -178,12 +178,14 @@ json2yaml body.json
 ```
 
 ```console
+  knows: http://schema.org/knows
+  name: http://schema.org/name
 '@graph':
 - '@id': '#1234'
-  http://schema.org/knows:
+  knows:
     '@id': '#5678'
-  http://schema.org/name: Alice
+  name: Alice
 - '@id': '#5678'
-  http://schema.org/name: Bob
+  name: Bob
 '@id': g1
 ```
