@@ -69,3 +69,58 @@ func CidV0(bytes []byte) (*cid.Cid, error) {
 	}
 	return &id, nil
 }
+
+func DecodeFromDAGCBOR(data []byte) (interface{}, error) {
+	builder := basicnode.Prototype.Any.NewBuilder()
+	err := dagcbor.Decode(builder, bytes.NewReader(data))
+	if err != nil {
+		return nil, err
+	}
+	node := builder.Build()
+	return nodeToInterface(node)
+}
+
+func nodeToInterface(n ipld.Node) (interface{}, error) {
+	switch n.Kind() {
+	case ipld.Kind_Map:
+		m := make(map[string]interface{})
+		it := n.MapIterator()
+		for !it.Done() {
+			k, v, _ := it.Next()
+			kString, err := k.AsString()
+			if err != nil {
+				return nil, err
+			}
+			i, err := nodeToInterface(v)
+			if err != nil {
+				return nil, err
+			}
+			m[kString] = i
+		}
+		return m, nil
+	case ipld.Kind_List:
+		var l []interface{}
+		it := n.ListIterator()
+		for !it.Done() {
+			_, v, _ := it.Next()
+			i, err := nodeToInterface(v)
+			if err != nil {
+				return nil, err
+			}
+			l = append(l, i)
+		}
+		return l, nil
+	case ipld.Kind_String:
+		return n.AsString()
+	case ipld.Kind_Int:
+		return n.AsInt()
+	case ipld.Kind_Float:
+		return n.AsFloat()
+	case ipld.Kind_Bool:
+		return n.AsBool()
+	case ipld.Kind_Null:
+		return nil, nil
+	default:
+		return nil, nil
+	}
+}

@@ -255,13 +255,9 @@ func main() {
 							}
 							json, err := json.MarshalIndent(header, "", "  ")
 							if err != nil {
-								return fmt.Errorf("failed to marshal Header: %w", err)
+								return fmt.Errorf("failed to marshal header: %w", err)
 							}
-							err = os.WriteFile(jsonFile, json, 0644)
-							if err != nil {
-								return err
-							}
-							return nil
+							return os.WriteFile(jsonFile, json, 0644)
 						},
 					},
 				},
@@ -314,6 +310,40 @@ func main() {
 							}
 							fmt.Println(bodyCid)
 							return nil
+						},
+					},
+
+					{
+						Name:  "export",
+						Usage: "Export a body as JSON.",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "body-file",
+								Required:    true,
+								Usage:       "Input file for the body",
+								Destination: &bodyFile,
+							},
+							&cli.StringFlag{
+								Name:        "output-file",
+								Required:    true,
+								Usage:       "Output file for the body",
+								Destination: &jsonFile,
+							},
+						},
+						Action: func(*cli.Context) error {
+							bodyBytes, err := os.ReadFile(bodyFile)
+							if err != nil {
+								return err
+							}
+							body, err := ipfs.DecodeFromDAGCBOR(bodyBytes)
+							if err != nil {
+								return err
+							}
+							json, err := json.MarshalIndent(body, "", "  ")
+							if err != nil {
+								return fmt.Errorf("failed to marshal body: %w", err)
+							}
+							return os.WriteFile(jsonFile, json, 0644)
 						},
 					},
 				},
