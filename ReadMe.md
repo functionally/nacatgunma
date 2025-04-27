@@ -2,8 +2,30 @@
 
 Nacatgunma is an experimental blockchain that supports fluid consensus.
 
+1. The blockchain is a DAG (directed acyclic graph), potentially with multiple tips.
+2. Anyone can extend the chain by signing a new block that references one or more parents.
+3. Anyone can ignore the tips they do not like.
+4. The block bodies are arbitrary and may be encrypted.
+5. Because the creator of a block signs the block, the contents of that block are implicitly reified in that they include provenance about the creator and the time of creation.
+6. Consortia of parties can collaborate on building a tip because they partially trust each other and can consider the reification in their individual trust models.
+
+
+## Semantic blocks
+
+When used with blocks consisting of RDF (resource description framework) quads, this creates a provable, forkable, trust-aware semantic web, where:
+
+- History is preserved.
+- Trust is local.
+- Forks are first-class citizens.
+- Knowledge evolves socially, not algorithmically.
+- Machine-readable graphs allow reasoning, merging, and analysis beyond human curation.
+
+The combination of signed RDF graphs + DAG tips + subjective tip choice constitutes a model embraces partial trust and subjectivity rather than forcing global consensus. Use cases involve not just block structure and DAG evolution, but also the social logic around trust, forks, merges, and graph evolution. In essence it provides semantic CRDTs (conflict-free replicated data types) but with subjective acceptance and formal provenance: i.e., provenance-anchored knowledge graphs with subjective evolution.
+
 
 ## CLI examples
+
+The CLI `nacatgunma` supports operations on the blockchain. Build using [build.sh](build.sh).
 
 
 ### Build the CLI executable
