@@ -21,7 +21,7 @@ $$
 where $g_B \in \mathcal{U}$ is a unique graph name associated with the block $B$, such as:
 
 $$
-g_B := \texttt{did:} \mathsf{issuer}(B) \# \mathsf{id}(B)
+g_B := \texttt{did:} \mathsf{issuer}(B) \\# \mathsf{id}(B)
 $$
 
 Alternatively, if using RDF-star or PROV-O, the reification can instead be:
