@@ -167,12 +167,11 @@ This may include reconstructing RDF graphs, applying CRDT logic, filtering by is
 
 ### Summary
 
-| Concept | Formal |
-|--------|--------|
-| Block | Tuple of accepted/rejected parents, body CID, issuer, signature |
-| DAG | Induced by accepted parent links |
-| Trust | Local function \( T_u : \mathcal{P} \to [0,1] \) |
-| View | Blocks visible from tips via non-rejected paths |
-| Rejection | Explicitly prunes traversal unless overridden later |
-| State | Application-defined interpretation of visible block bodies |
-
+| Concept   | Formal                                                          |
+|-----------|-----------------------------------------------------------------|
+| Block     | Tuple of accepted/rejected parents, body CID, issuer, signature |
+| DAG       | Induced by accepted parent links                                |
+| Trust     | Local function $T_u : \mathcal{P} \to [0,1]$                    |
+| View      | Blocks visible from tips via non-rejected paths                 |
+| Rejection | Explicitly prunes traversal unless overridden later             |
+| State     | Application-defined interpretation of visible block bodies      |

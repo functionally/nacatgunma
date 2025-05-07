@@ -26,6 +26,7 @@ The combination of signed RDF graphs + DAG tips + subjective tip choice constitu
 ## Specification
 
 - [General specification](Specification.md)
+- [Specialization to RDF bodies](RDF-Specialization.md)
 
 
 ## CLI examples
