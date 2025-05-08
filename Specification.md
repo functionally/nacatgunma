@@ -25,7 +25,7 @@ type Payload struct {
 	Accept    []cid.Cid     // accepted parent blocks
 	Reject    []cid.Cid     // rejected blocks
 	Body      cid.Cid       // content-addressed arbitrary data
-	Schema    string        // schema URI
+	SchemaUri string        // schema URI
 	MediaType string        // MIME type
 }
 ```
@@ -46,8 +46,8 @@ where:
 - $\mathsf{accept}(B) \subset \mathcal{C}$: set of parent block CIDs that this block explicitly extends.
 - $\mathsf{reject}(B) \subset \mathcal{C}$: set of block CIDs that this block rejects.
 - $\mathsf{body}(B) \in \mathcal{C}$: CID of the block’s body (arbitrary content).
-- $\mathsf{schema}(B) \in \mathbb{S}$: optional schema identifier.
-- $\mathsf{media}(B) \in \mathbb{M}$: optional media type string.
+- $\mathsf{schema}(B) \in \mathbb{S}$: schema URI string.
+- $\mathsf{media}(B) \in \mathbb{M}$: media type string.
 - $\mathsf{issuer}(B) \in \mathcal{P}$: public key of the block’s issuer.
 - $\mathsf{sig}(B)$$: digital signature over the payload fields, created using the issuer’s secret key.
 

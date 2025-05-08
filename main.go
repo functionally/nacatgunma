@@ -128,7 +128,7 @@ func main() {
 								Name:        "schema",
 								Value:       "DAG-CBOR",
 								Usage:       "Schema for the block body",
-								Destination: &payload.Schema,
+								Destination: &payload.SchemaUri,
 							},
 							&cli.StringSliceFlag{
 								Name:        "accept",
@@ -390,7 +390,7 @@ func main() {
 								Name:        "schema",
 								Value:       "DAG-CBOR",
 								Usage:       "Schema for the body",
-								Destination: &payload.Schema,
+								Destination: &payload.SchemaUri,
 							},
 							&cli.StringSliceFlag{
 								Name:        "accept",
