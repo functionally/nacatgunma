@@ -2,7 +2,6 @@ package rdf
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -25,33 +24,40 @@ func ReadRdf(filename string, baseUri string, format string) (interface{}, error
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(expandedDoc)
 	context := generateContext(expandedDoc)
-	fmt.Println(context)
 	return proc.Compact(expandedDoc, context, options)
 }
 
 func generateContext(doc interface{}) map[string]interface{} {
 	ctx := make(map[string]interface{})
-	scanForPredicates(doc, ctx)
+	scanForPredicates(doc, ctx, make(map[string]bool))
 	return ctx
 }
 
-func scanForPredicates(value interface{}, ctx map[string]interface{}) {
+func scanForPredicates(value interface{}, ctx map[string]interface{}, fnd map[string]bool) {
 	switch v := value.(type) {
 	case map[string]interface{}:
 		for k, val := range v {
+			if _, exists := fnd[k]; exists {
+				break
+			}
 			if isIRI(k) {
 				short := shorten(k)
 				if _, exists := ctx[short]; !exists {
-					ctx[short] = k
+					for i := min(5, len(short)); i <= len(short); i++ {
+						if _, exists = ctx[short[:i]]; !exists {
+							fnd[k] = true
+							ctx[short[:i]] = k
+							break
+						}
+					}
 				}
 			}
-			scanForPredicates(val, ctx)
+			scanForPredicates(val, ctx, fnd)
 		}
 	case []interface{}:
 		for _, item := range v {
-			scanForPredicates(item, ctx)
+			scanForPredicates(item, ctx, fnd)
 		}
 	}
 }
@@ -64,7 +70,13 @@ func isIRI(k string) bool {
 }
 
 func shorten(iri string) string {
-	parts := strings.Split(iri, "/")
+	var sep string
+	if strings.Contains(iri, "#") {
+		sep = "#"
+	} else {
+		sep = "/"
+	}
+	parts := strings.Split(iri, sep)
 	last := parts[len(parts)-1]
 	if last == "" && len(parts) > 1 {
 		last = parts[len(parts)-2]
