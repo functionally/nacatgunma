@@ -9,6 +9,7 @@ import (
 	shell "github.com/ipfs/go-ipfs-api"
 	"github.com/urfave/cli/v2"
 
+	//"github.com/functionally/nacatgunma/cardano"
 	"github.com/functionally/nacatgunma/header"
 	"github.com/functionally/nacatgunma/ipfs"
 	"github.com/functionally/nacatgunma/key"
@@ -16,6 +17,8 @@ import (
 )
 
 func main() {
+
+	//	cardano.Test()
 
 	var keyFile string
 	var headerFile string
@@ -126,7 +129,7 @@ func main() {
 							},
 							&cli.StringFlag{
 								Name:        "schema",
-								Value:       "DAG-CBOR",
+								Value:       "https://w3c.github.io/json-ld-cbor/",
 								Usage:       "Schema for the block body",
 								Destination: &payload.SchemaUri,
 							},
@@ -148,7 +151,7 @@ func main() {
 							},
 							&cli.StringFlag{
 								Name:        "media-type",
-								Value:       "application/cbor",
+								Value:       "application/vnd.ipld.dag-cbor",
 								Usage:       "Media type for block body",
 								Destination: &payload.MediaType,
 							},
