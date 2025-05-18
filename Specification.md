@@ -27,6 +27,7 @@ type Payload struct {
 	Body      cid.Cid       // content-addressed arbitrary data
 	SchemaUri string        // schema URI
 	MediaType string        // MIME type
+    Comment   string        // arbitrary commentary
 }
 ```
 
@@ -48,6 +49,7 @@ where:
 - $\mathsf{body}(B) \in \mathcal{C}$: CID of the block’s body (arbitrary content).
 - $\mathsf{schema}(B) \in \mathbb{S}$: schema URI string.
 - $\mathsf{media}(B) \in \mathbb{M}$: media type string.
+- $\mathsf{comment}(B)$: comment string.
 - $\mathsf{issuer}(B) \in \mathcal{P}$: public key of the block’s issuer.
 - $\mathsf{sig}(B)$$: digital signature over the payload fields, created using the issuer’s secret key.
 
@@ -69,9 +71,9 @@ Each participant $u \in \mathcal{P}$ maintains:
 
 - A **trust function**:
 
-    $$
-    T_u : \mathcal{P} \to [0,1]
-    $$
+$$
+T\_u : \mathcal{P} \to [0,1]
+$$
 
 - A set of **trusted tips** $\mathcal{T}_u \subseteq \mathcal{C}$ used as starting points for state computation.
 
@@ -167,11 +169,11 @@ This may include reconstructing RDF graphs, applying CRDT logic, filtering by is
 
 ### Summary
 
-| Concept   | Formal                                                          |
+| Concept   | Formally                                                        |
 |-----------|-----------------------------------------------------------------|
 | Block     | Tuple of accepted/rejected parents, body CID, issuer, signature |
 | DAG       | Induced by accepted parent links                                |
-| Trust     | Local function $T_u : \mathcal{P} \to [0,1]$                    |
+| Trust     | Local function $T\_u : \mathcal{P} \to [0,1]$                   |
 | View      | Blocks visible from tips via non-rejected paths                 |
 | Rejection | Explicitly prunes traversal unless overridden later             |
 | State     | Application-defined interpretation of visible block bodies      |
