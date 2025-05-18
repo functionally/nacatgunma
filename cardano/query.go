@@ -3,7 +3,6 @@ package cardano
 import (
 	"fmt"
 
-	ouroboros "github.com/blinklabs-io/gouroboros"
 	"github.com/blinklabs-io/gouroboros/cbor"
 	"github.com/blinklabs-io/gouroboros/ledger/babbage"
 	"github.com/blinklabs-io/gouroboros/ledger/common"
@@ -11,27 +10,20 @@ import (
 	"github.com/ipfs/go-cid"
 )
 
-type Client struct {
-	Node  *ouroboros.Connection
-	Query *localstatequery.LocalStateQuery
-}
-
-func NewClient(nodeSocketPath string, networkMagic uint32) (*Client, error) {
-	var err error
-	var client Client
-	client.Node, err = ouroboros.NewConnection(
-		ouroboros.WithNetworkMagic(networkMagic),
-		ouroboros.WithNodeToNode(false),
-	)
+func (client *Client) TipsV1(address common.Address) ([]Tip, error) {
+	var query *localstatequery.UTxOByAddressResult
+	query, err := client.Query.Client.GetUTxOByAddress([]common.Address{address})
 	if err != nil {
 		return nil, err
 	}
-	err = client.Node.Dial("unix", nodeSocketPath)
-	if err != nil {
-		return nil, err
+	var tips []Tip
+	for id, output := range query.Results {
+		tip, err := tipV1(id, output)
+		if err == nil {
+			tips = append(tips, *tip)
+		}
 	}
-	client.Query = client.Node.LocalStateQuery()
-	return &client, nil
+	return tips, nil
 }
 
 type Tip struct {
@@ -63,22 +55,6 @@ func (tip *Tip) Rep() *tipRep {
 		CredentialHash:   fmt.Sprintf("%x", tip.Credential.Credential.Bytes()),
 		HeaderCid:        tip.HeaderCid.String(),
 	}
-}
-
-func (client *Client) TipsV1(address common.Address) ([]Tip, error) {
-	var query *localstatequery.UTxOByAddressResult
-	query, err := client.Query.Client.GetUTxOByAddress([]common.Address{address})
-	if err != nil {
-		return nil, err
-	}
-	var tips []Tip
-	for id, output := range query.Results {
-		tip, err := tipV1(id, output)
-		if err == nil {
-			tips = append(tips, *tip)
-		}
-	}
-	return tips, nil
 }
 
 func tipV1(id localstatequery.UtxoId, output babbage.BabbageTransactionOutput) (*Tip, error) {
