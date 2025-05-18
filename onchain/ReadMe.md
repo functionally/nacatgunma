@@ -6,7 +6,7 @@
 ## Artifacts
 
 - Genesis transaction: [91489f0e05ca07de762aafa021b8fb79d0e330dc72e2cc20cba5fd6aed7bd841](https://cardanoscan.io/transaction/91489f0e05ca07de762aafa021b8fb79d0e330dc72e2cc20cba5fd6aed7bd841?tab=utxo)
-    - [Token](https://cardanoscan.io/transaction/91489f0e05ca07de762aafa021b8fb79d0e330dc72e2cc20cba5fd6aed7bd841?tab=tokenmint) that conveniently identifies the Nacatgunma blockchain
+    - [Token](https://cexplorer.io/asset/asset164wys3lchpfhzclvvzwwvv9cztgp4mdmvcvs8k/owner#data) that conveniently identifies the Nacatgunma blockchain
     - [Metadata](https://cardanoscan.io/transaction/91489f0e05ca07de762aafa021b8fb79d0e330dc72e2cc20cba5fd6aed7bd841?tab=metadata)
 - Genesis block
     - Header: [bafyreignmx5htp2z4dzzqvty5bzpyw72yueqas7jzcw2qjfje7rakshzna](https://ipfs.io/ipfs/bafyreignmx5htp2z4dzzqvty5bzpyw72yueqas7jzcw2qjfje7rakshzna)
