@@ -262,3 +262,53 @@ nacatgunma cardano tips \
   }
 ]
 ```
+
+
+### Generate Cardano datum, redeemer, and metadata
+
+```bash
+nacatgunma cardano inputs \
+  --header-cid bafyreignmx5htp2z4dzzqvty5bzpyw72yueqas7jzcw2qjfje7rakshzna \
+  --script \
+  --credential-hash 30135f08305143796de4276083cc54e47fbcafb176df6b58ab309446 \
+  --datum-file datum.json \
+  --redeemer-file redeemer.json \
+  --metadata-file metadata.json
+```
+
+```bash
+json2yaml datum.json
+```
+
+```yaml
+list:
+- constructor: 1
+  fields:
+  - bytes: 30135f08305143796de4276083cc54e47fbcafb176df6b58ab309446
+- bytes: 01711220cd65fa79bf59e0f3985678e872fc5bfac509004be9c8ada824a927e20548f968
+```
+
+```bash
+json2yaml redeemer.json
+```
+
+```yaml
+int: 58312
+```
+
+```bash
+json2yaml metadata.json
+```
+
+```yaml
+'58312':
+  blockchain: https://github.com/functionally/nacatgunma
+  header:
+    ipfs: bafyreignmx5htp2z4dzzqvty5bzpyw72yueqas7jzcw2qjfje7rakshzna
+```
+
+Note that these files can be generated individually using the following commands:
+
+- `nacatgunma cardano datum`
+- `nacatgunma cardano redeemer`
+- `nacatgunma cardano metadata`
