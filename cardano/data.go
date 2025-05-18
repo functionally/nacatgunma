@@ -50,3 +50,16 @@ func (datum *Datum) ToJSON() ([]byte, error) {
 	}
 	return buf.Bytes(), nil
 }
+
+func RedeemerJSON(metadataKey uint) ([]byte, error) {
+	var buf bytes.Buffer
+	_, err := fmt.Fprintf(
+		&buf,
+		"{\"int\" : %v}",
+		metadataKey,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}

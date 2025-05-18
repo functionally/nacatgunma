@@ -40,6 +40,8 @@ func main() {
 	var script bool
 	var credential string
 	var datumFile string
+	var metadataKey uint
+	var redeemerFile string
 
 	app := &cli.App{
 		Name:  "nacatgunma",
@@ -182,6 +184,32 @@ func main() {
 								return err
 							}
 							return os.WriteFile(datumFile, datumBytes, 0644)
+						},
+					},
+
+					{
+						Name:  "redeemer",
+						Usage: "Create redeemer for a tip.",
+						Flags: []cli.Flag{
+							&cli.UintFlag{
+								Name:        "metadata-key",
+								Value:       58312,
+								Usage:       "Metadata key for the chain",
+								Destination: &metadataKey,
+							},
+							&cli.StringFlag{
+								Name:        "redeemer-file",
+								Value:       "/dev/stdout",
+								Usage:       "Output file for JSON-formatted redeemer",
+								Destination: &redeemerFile,
+							},
+						},
+						Action: func(*cli.Context) error {
+							redeemerBytes, err := cardano.RedeemerJSON(metadataKey)
+							if err != nil {
+								return err
+							}
+							return os.WriteFile(redeemerFile, redeemerBytes, 0644)
 						},
 					},
 
