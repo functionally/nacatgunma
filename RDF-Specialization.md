@@ -41,7 +41,7 @@ Given a participant $u$, let $\mathcal{V}_u$ be the set of blocks **visible** un
 Define the participant’s **assembled state graph** $\mathsf{S}_u$ as:
 
 $$
-\mathsf{S}\_u := \bigcup\_{B \in \mathcal{V}_u} \mathsf{reify}(B)
+\mathsf{S}\_u := \bigcup\_{B \in \mathcal{V}\_u} \mathsf{reify}(B)
 $$
 
 That is, the total RDF graph is the union of all reified block payloads visible under $u$'s trust and traversal policy.
@@ -49,7 +49,7 @@ That is, the total RDF graph is the union of all reified block payloads visible 
 If RDF-star is used, this could equivalently be:
 
 $$
-\mathsf{S}\_u := \bigcup\_{B \in \mathcal{V}_u} \left\{ \ll t \gg \ \mathsf{prov:wasAttributedTo} \ \mathsf{issuer}(B) \right\}
+\mathsf{S}\_u := \bigcup\_{B \in \mathcal{V}\_u} \left\{ \ll t \gg \ \mathsf{prov:wasAttributedTo} \ \mathsf{issuer}(B) \right\}
 \quad \text{for each } t \in \mathsf{G}(B)
 $$
 
