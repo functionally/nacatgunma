@@ -42,6 +42,8 @@ func main() {
 	var datumFile string
 	var metadataKey uint
 	var redeemerFile string
+	var blockchain string
+	var metadataFile string
 
 	app := &cli.App{
 		Name:  "nacatgunma",
@@ -184,6 +186,44 @@ func main() {
 								return err
 							}
 							return os.WriteFile(datumFile, datumBytes, 0644)
+						},
+					},
+
+					{
+						Name:  "metadata",
+						Usage: "Create metadata for a tip.",
+						Flags: []cli.Flag{
+							&cli.UintFlag{
+								Name:        "metadata-key",
+								Value:       58312,
+								Usage:       "Metadata key for the chain",
+								Destination: &metadataKey,
+							},
+							&cli.StringFlag{
+								Name:        "blockchain",
+								Value:       "https://github.com/functionally/nacatgunma",
+								Usage:       "The IRI identifying the blockchain",
+								Destination: &blockchain,
+							},
+							&cli.StringFlag{
+								Name:        "header-cid",
+								Required:    true,
+								Usage:       "The CID of the block header",
+								Destination: &headerCid,
+							},
+							&cli.StringFlag{
+								Name:        "metadata-file",
+								Value:       "/dev/stdout",
+								Usage:       "Output file for JSON-formatted metadata",
+								Destination: &metadataFile,
+							},
+						},
+						Action: func(*cli.Context) error {
+							metadataBytes, err := cardano.MetadataJSON(metadataKey, blockchain, headerCid)
+							if err != nil {
+								return err
+							}
+							return os.WriteFile(metadataFile, metadataBytes, 0644)
 						},
 					},
 

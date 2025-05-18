@@ -63,3 +63,18 @@ func RedeemerJSON(metadataKey uint) ([]byte, error) {
 	}
 	return buf.Bytes(), nil
 }
+
+func MetadataJSON(metadataKey uint, blockchain string, header string) ([]byte, error) {
+	var buf bytes.Buffer
+	_, err := fmt.Fprintf(
+		&buf,
+		"{\"%v\" : {\"blockchain\" : \"%v\", \"header\" : {\"ipfs\" : \"%v\"}}}",
+		metadataKey,
+		blockchain,
+		header,
+	)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
