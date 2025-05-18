@@ -27,7 +27,7 @@ type Payload struct {
 	Body      cid.Cid       // content-addressed arbitrary data
 	SchemaUri string        // schema URI
 	MediaType string        // MIME type
-    Comment   string        // arbitrary commentary
+	Comment   string        // arbitrary commentary
 }
 ```
 
@@ -39,7 +39,7 @@ Let $\mathcal{C}$ be the set of content identifiers (e.g., CIDs), and let $\math
 Each block is a tuple:
 
 $$
-B = (\text{id}, \mathsf{accept}(B), \mathsf{reject}(B), \mathsf{body}(B), \mathsf{schema}(B), \mathsf{media}(B), \mathsf{issuer}(B), \mathsf{sig}(B))
+B = (\text{id}, \mathsf{accept}(B), \mathsf{reject}(B), \mathsf{body}(B), \mathsf{schema}(B), \mathsf{media}(B), \mathsf{comment}(B), \mathsf{issuer}(B), \mathsf{sig}(B))
 $$
 
 where:
@@ -50,8 +50,8 @@ where:
 - $\mathsf{schema}(B) \in \mathbb{S}$: schema URI string.
 - $\mathsf{media}(B) \in \mathbb{M}$: media type string.
 - $\mathsf{comment}(B)$: comment string.
-- $\mathsf{issuer}(B) \in \mathcal{P}$: public key of the block’s issuer.
-- $\mathsf{sig}(B)$$: digital signature over the payload fields, created using the issuer’s secret key.
+- $\mathsf{issuer}(B) \in \mathcal{P}$: DID of the block’s issuer.
+- $\mathsf{sig}(B)$: digital signature over the payload fields, created using the issuer’s secret key.
 
 
 ## DAG Structure and validity
