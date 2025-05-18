@@ -1,0 +1,30 @@
+{
+  "type": "all",
+  "scripts": [
+    {
+      "type": "any",
+      "scripts": [
+        {
+          "type": "sig",
+          "keyHash": "5a39a58736b8417b3322716c56cb72eb40972063c96f83f31310cf40"
+        },
+        {
+          "type": "sig",
+          "keyHash": "5ae1f167a8038ac0e9497ec4f4e8a7bbb6bfd3554df89241311b7722"
+        },
+        {
+          "type": "sig",
+          "keyHash": "033a6ddcc325b786c976772e40f3f23f909caaf425ed3585ec4d3056"
+        },
+        {
+          "type": "sig",
+          "keyHash": "0a11b0c7e25dc5d9c63171bdf39d9741b901dc903e12b4e162348e07"
+        }
+      ]
+    },
+    {
+      "type": "after",
+      "slot": 58312
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "list" : [
+    {
+      "constructor": 1,
+      "fields": [
+        {
+          "bytes": "30135f08305143796de4276083cc54e47fbcafb176df6b58ab309446"
+        }
+      ]
+    },
+    {
+      "bytes": "0171122083bc0e09b0eb87f06db3fdfadd08caa1d8a1a38074a7d9686026ac4855e89d24"
+    }
+  ]
+}

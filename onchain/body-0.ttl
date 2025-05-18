@@ -1,0 +1,36 @@
+@base <> .
+
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+<#Blockchain>
+  a rdfs:Class
+; rdfs:comment "A blockchain."
+.
+
+<#Block>
+  a rdfs:Class
+; rdfs:comment "A block in a blockchain."
+.
+
+<#hasGenesisBlock>
+  a rdf:Property
+; rdfs:domain <#Blockchain>
+; rdfs:range <#Block>
+; rdfs:comment "Links a blockchain to its genesis block."
+.
+
+<#nacatgunma>
+  a <#Blockchain>
+; dcterms:title "Nacatgunma"
+; dcterms:description "Nacatgunma is an experimental blockchain that supports fluid consensus."
+; dcterms:conformsTo <https://github.com/functionally/nacatgunma>
+; dcterms:hasVersion "1"^^xsd:integer
+; dcterms:license <https://github.com/functionally/nacatgunma/blob/main/LICENSE>
+; dcterms:creator <https://github.com/bwbush>
+; <#hasGenesisBlock> <>
+.
+
+<> a <#Block> .

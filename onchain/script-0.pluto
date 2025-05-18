@@ -1,0 +1,50 @@
+(
+
+  -- Validator that succeeds when one of the inputs contains the specified credential.
+  --
+  -- `[Credential, a] -> b -> ScriptContext -> ()`
+  \datum _ context -> 
+
+    let 
+    
+      -- Recursion.
+      fix = (\f -> (\x -> f (\v -> x x v)) (\x -> f (\v -> x x v)));
+    
+      -- First field of a sum type.
+      fstFld = (\x -> ! HeadList (! ! SndPair (UnConstrData x)));
+
+      -- Second field of a sum type.
+      sndFld = (\x -> ! HeadList (! TailList (! ! SndPair (UnConstrData x))));
+    
+      -- Credential for required spending.
+      --
+      -- `credential :: Credential`
+      credential = ! HeadList (UnListData datum);
+      
+      -- Is the input spending from the credential?
+      --
+      -- `isCredential :: TxInInfo -> Bool`
+      isCredential = (\x -> EqualsData credential (fstFld (fstFld (sndFld x))));
+      
+      -- Ensure that at least one input spends from the credential.
+      --
+      -- `assertCredential :: [TxInInfo] -> ()`
+      assertCredential =
+        fix (\assertCredential xs -> 
+          if ! NullList xs
+            then Error ()
+            else
+              if isCredential (! HeadList xs)
+                then () 
+                else assertCredential (! TailList xs)
+        );
+
+      -- The inputs being spent.    
+      txInInfos = UnListData (fstFld (fstFld context))
+    
+    in 
+    
+      assertCredential txInInfos
+
+)
+
