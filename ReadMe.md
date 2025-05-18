@@ -23,10 +23,11 @@ When used with blocks consisting of RDF (resource description framework) quads, 
 The combination of signed RDF graphs + DAG tips + subjective tip choice constitutes a model embraces partial trust and subjectivity rather than forcing global consensus. Use cases involve not just block structure and DAG evolution, but also the social logic around trust, forks, merges, and graph evolution. In essence it provides semantic CRDTs (conflict-free replicated data types) but with subjective acceptance and formal provenance: i.e., provenance-anchored knowledge graphs with subjective evolution.
 
 
-## Specification
+## Specifications
 
 - [General specification](Specification.md)
 - [Specialization to RDF bodies](RDF-Specialization.md)
+- [Using Cardano for Layer 1](Cardano-for-Layer-1.md)
 
 
 ## CLI examples
