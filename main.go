@@ -56,6 +56,40 @@ func main() {
 				Subcommands: []*cli.Command{
 
 					{
+						Name:  "export",
+						Usage: "Export a body as JSON.",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "body-file",
+								Required:    true,
+								Usage:       "Input file for the block body",
+								Destination: &bodyFile,
+							},
+							&cli.StringFlag{
+								Name:        "output-file",
+								Required:    true,
+								Usage:       "Output file for the block body",
+								Destination: &jsonFile,
+							},
+						},
+						Action: func(*cli.Context) error {
+							bodyBytes, err := os.ReadFile(bodyFile)
+							if err != nil {
+								return err
+							}
+							body, err := ipfs.DecodeFromDagCbor(bodyBytes)
+							if err != nil {
+								return err
+							}
+							json, err := json.MarshalIndent(body, "", "  ")
+							if err != nil {
+								return fmt.Errorf("failed to marshal body: %w", err)
+							}
+							return os.WriteFile(jsonFile, json, 0644)
+						},
+					},
+
+					{
 						Name:  "rdf",
 						Usage: "Build a block of RDF N-quads.",
 						Flags: []cli.Flag{
@@ -103,40 +137,6 @@ func main() {
 							}
 							fmt.Println(bodyCid)
 							return nil
-						},
-					},
-
-					{
-						Name:  "export",
-						Usage: "Export a body as JSON.",
-						Flags: []cli.Flag{
-							&cli.StringFlag{
-								Name:        "body-file",
-								Required:    true,
-								Usage:       "Input file for the block body",
-								Destination: &bodyFile,
-							},
-							&cli.StringFlag{
-								Name:        "output-file",
-								Required:    true,
-								Usage:       "Output file for the block body",
-								Destination: &jsonFile,
-							},
-						},
-						Action: func(*cli.Context) error {
-							bodyBytes, err := os.ReadFile(bodyFile)
-							if err != nil {
-								return err
-							}
-							body, err := ipfs.DecodeFromDagCbor(bodyBytes)
-							if err != nil {
-								return err
-							}
-							json, err := json.MarshalIndent(body, "", "  ")
-							if err != nil {
-								return fmt.Errorf("failed to marshal body: %w", err)
-							}
-							return os.WriteFile(jsonFile, json, 0644)
 						},
 					},
 				},
@@ -488,37 +488,6 @@ func main() {
 					},
 
 					{
-						Name:  "verify",
-						Usage: "Verify a block header.",
-						Flags: []cli.Flag{
-							&cli.StringFlag{
-								Name:        "header-file",
-								Required:    true,
-								Usage:       "Input file for the block header CBOR",
-								Destination: &headerFile,
-							},
-						},
-						Action: func(*cli.Context) error {
-							headerBytes, err := os.ReadFile(headerFile)
-							if err != nil {
-								return err
-							}
-							header, err := header.UnmarshalHeader(headerBytes)
-							if err != nil {
-								return err
-							}
-							okay, err := header.Verify()
-							if err != nil {
-								return err
-							} else if !okay {
-								return fmt.Errorf("signature verification failed")
-							}
-							fmt.Printf("Verified signature by %s\n", header.Issuer)
-							return nil
-						},
-					},
-
-					{
 						Name:  "export",
 						Usage: "Export a block header to JSON.",
 						Flags: []cli.Flag{
@@ -551,69 +520,34 @@ func main() {
 							return os.WriteFile(jsonFile, json, 0644)
 						},
 					},
-				},
-			},
-
-			{
-				Name:  "key",
-				Usage: "Key management subcommands",
-				Subcommands: []*cli.Command{
 
 					{
-						Name:  "generate",
-						Usage: "Generate an Ed25519 key.",
+						Name:  "verify",
+						Usage: "Verify a block header.",
 						Flags: []cli.Flag{
 							&cli.StringFlag{
-								Name:        "key-file",
+								Name:        "header-file",
 								Required:    true,
-								Usage:       "Output file for private key",
-								Destination: &keyFile,
+								Usage:       "Input file for the block header CBOR",
+								Destination: &headerFile,
 							},
 						},
 						Action: func(*cli.Context) error {
-							key, err := key.GenerateKey()
+							headerBytes, err := os.ReadFile(headerFile)
 							if err != nil {
 								return err
 							}
-							err = key.WritePrivateKey(keyFile)
+							header, err := header.UnmarshalHeader(headerBytes)
 							if err != nil {
 								return err
 							}
-							fmt.Println(key.Did)
-							return nil
-						},
-					},
-
-					{
-						Name:  "resolve",
-						Usage: "Resolve an Ed25519 key.",
-						Flags: []cli.Flag{
-							&cli.StringFlag{
-								Name:        "key-did",
-								Required:    true,
-								Usage:       "The DID for the public key",
-								Destination: &keyDid,
-							},
-							&cli.StringFlag{
-								Name:        "output-file",
-								Required:    true,
-								Usage:       "Output JSON file for DID resolution",
-								Destination: &jsonFile,
-							},
-						},
-						Action: func(*cli.Context) error {
-							resolution, err := key.ResolveDid(keyDid)
+							okay, err := header.Verify()
 							if err != nil {
 								return err
+							} else if !okay {
+								return fmt.Errorf("signature verification failed")
 							}
-							json, err := json.MarshalIndent(resolution, "", "  ")
-							if err != nil {
-								return fmt.Errorf("failed to marshal DocResolution: %w", err)
-							}
-							err = os.WriteFile(jsonFile, json, 0644)
-							if err != nil {
-								return err
-							}
+							fmt.Printf("Verified signature by %s\n", header.Issuer)
 							return nil
 						},
 					},
@@ -624,6 +558,61 @@ func main() {
 				Name:  "ipfs",
 				Usage: "Interact with IPFS",
 				Subcommands: []*cli.Command{
+
+					{
+						Name:  "fetch",
+						Usage: "Fetch a block header and body from IPFS.",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "ipfs-api",
+								Value:       "localhost:5001",
+								Usage:       "Endpoint for the IPFS API",
+								Destination: &ipfsApi,
+							},
+							&cli.StringFlag{
+								Name:        "header-cid",
+								Required:    true,
+								Usage:       "The CID for the block header",
+								Destination: &headerCid,
+							},
+							&cli.StringFlag{
+								Name:        "header-file",
+								Required:    true,
+								Usage:       "Output file for the header",
+								Destination: &headerFile,
+							},
+							&cli.StringFlag{
+								Name:        "body-file",
+								Required:    true,
+								Usage:       "Output file for the body",
+								Destination: &bodyFile,
+							},
+						},
+						Action: func(*cli.Context) error {
+							sh := shell.NewShell(ipfsApi)
+							hdrBytes, err := ipfs.FetchNode(sh, headerCid)
+							if err != nil {
+								return err
+							}
+							hdr, err := header.UnmarshalHeader(hdrBytes)
+							if err != nil {
+								return err
+							}
+							bdyBytes, err := ipfs.FetchNode(sh, hdr.Payload.Body.String())
+							if err != nil {
+								return err
+							}
+							err = os.WriteFile(headerFile, hdrBytes, 0644)
+							if err != nil {
+								return err
+							}
+							err = os.WriteFile(bodyFile, bdyBytes, 0644)
+							if err != nil {
+								return err
+							}
+							return nil
+						},
+					},
 
 					{
 						Name:  "store",
@@ -717,55 +706,66 @@ func main() {
 							return nil
 						},
 					},
+				},
+			},
+
+			{
+				Name:  "key",
+				Usage: "Key management subcommands",
+				Subcommands: []*cli.Command{
 
 					{
-						Name:  "fetch",
-						Usage: "Fetch a block header and body from IPFS.",
+						Name:  "generate",
+						Usage: "Generate an Ed25519 key.",
 						Flags: []cli.Flag{
 							&cli.StringFlag{
-								Name:        "ipfs-api",
-								Value:       "localhost:5001",
-								Usage:       "Endpoint for the IPFS API",
-								Destination: &ipfsApi,
-							},
-							&cli.StringFlag{
-								Name:        "header-cid",
+								Name:        "key-file",
 								Required:    true,
-								Usage:       "The CID for the block header",
-								Destination: &headerCid,
-							},
-							&cli.StringFlag{
-								Name:        "header-file",
-								Required:    true,
-								Usage:       "Output file for the header",
-								Destination: &headerFile,
-							},
-							&cli.StringFlag{
-								Name:        "body-file",
-								Required:    true,
-								Usage:       "Output file for the body",
-								Destination: &bodyFile,
+								Usage:       "Output file for private key",
+								Destination: &keyFile,
 							},
 						},
 						Action: func(*cli.Context) error {
-							sh := shell.NewShell(ipfsApi)
-							hdrBytes, err := ipfs.FetchNode(sh, headerCid)
+							key, err := key.GenerateKey()
 							if err != nil {
 								return err
 							}
-							hdr, err := header.UnmarshalHeader(hdrBytes)
+							err = key.WritePrivateKey(keyFile)
 							if err != nil {
 								return err
 							}
-							bdyBytes, err := ipfs.FetchNode(sh, hdr.Payload.Body.String())
+							fmt.Println(key.Did)
+							return nil
+						},
+					},
+
+					{
+						Name:  "resolve",
+						Usage: "Resolve an Ed25519 key.",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "key-did",
+								Required:    true,
+								Usage:       "The DID for the public key",
+								Destination: &keyDid,
+							},
+							&cli.StringFlag{
+								Name:        "output-file",
+								Required:    true,
+								Usage:       "Output JSON file for DID resolution",
+								Destination: &jsonFile,
+							},
+						},
+						Action: func(*cli.Context) error {
+							resolution, err := key.ResolveDid(keyDid)
 							if err != nil {
 								return err
 							}
-							err = os.WriteFile(headerFile, hdrBytes, 0644)
+							json, err := json.MarshalIndent(resolution, "", "  ")
 							if err != nil {
-								return err
+								return fmt.Errorf("failed to marshal DocResolution: %w", err)
 							}
-							err = os.WriteFile(bodyFile, bdyBytes, 0644)
+							err = os.WriteFile(jsonFile, json, 0644)
 							if err != nil {
 								return err
 							}
