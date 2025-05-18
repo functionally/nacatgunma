@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/blinklabs-io/gouroboros/ledger/common"
 	"github.com/ipfs/go-cid"
 	shell "github.com/ipfs/go-ipfs-api"
 	"github.com/urfave/cli/v2"
 
-	//"github.com/functionally/nacatgunma/cardano"
+	"github.com/functionally/nacatgunma/cardano"
 	"github.com/functionally/nacatgunma/header"
 	"github.com/functionally/nacatgunma/ipfs"
 	"github.com/functionally/nacatgunma/key"
@@ -17,8 +18,6 @@ import (
 )
 
 func main() {
-
-	//	cardano.Test()
 
 	var keyFile string
 	var headerFile string
@@ -34,6 +33,10 @@ func main() {
 	var body string
 	var accepts cli.StringSlice
 	var rejects cli.StringSlice
+	var nodeSocket string
+	var networkMagic uint
+	var address string
+	var tipFile string
 
 	app := &cli.App{
 		Name:  "nacatgunma",
@@ -518,6 +521,61 @@ func main() {
 								return err
 							}
 							return nil
+						},
+					},
+				},
+			},
+
+			{
+				Name:  "cardano",
+				Usage: "Interact with Cardano",
+				Subcommands: []*cli.Command{
+
+					{
+						Name:  "tips",
+						Usage: "Find the tips.",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "node-socket",
+								Required:    true,
+								Usage:       "Path to the Cardano node socket",
+								Destination: &nodeSocket,
+							},
+							&cli.UintFlag{
+								Name:        "network-magic",
+								Value:       764824073,
+								Usage:       "Magic number for the Cardano network",
+								Destination: &networkMagic,
+							},
+							&cli.StringFlag{
+								Name:        "script-address",
+								Required:    true,
+								Usage:       "Address of the Plutus script for the tip",
+								Destination: &address,
+							},
+							&cli.StringFlag{
+								Name:        "tips-file",
+								Value:       "/dev/stdout",
+								Usage:       "Output JSON file for tip information",
+								Destination: &tipFile,
+							},
+						},
+						Action: func(*cli.Context) error {
+							addr, err := common.NewAddress(address)
+							if err != nil {
+								return err
+							}
+							client, err := cardano.NewClient(nodeSocket, uint32(networkMagic))
+							if err != nil {
+								return err
+							}
+							tips, err := client.TipsV1(addr)
+							if err != nil {
+								return err
+							}
+							fmt.Printf("%v\n", *tips[0].Rep())
+							jsonBytes, _ := json.MarshalIndent(cardano.TipReps(tips), "", "  ")
+							return os.WriteFile(tipFile, jsonBytes, 0644)
 						},
 					},
 				},
