@@ -15,13 +15,13 @@ We define a reification function $\mathsf{reify}(B)$ that maps the signed graph 
 For each triple $t \in \mathsf{G}(B)$, define the reified form:
 
 $$
-\mathsf{reify}(B) = \{ (s, p, o, g_B) \mid (s, p, o) \in \mathsf{G}(B) \}
+\mathsf{reify}(B) = \{ (s, p, o, g\_B) \mid (s, p, o) \in \mathsf{G}(B) \}
 $$
 
-where $g_B \in \mathcal{U}$ is a unique graph name associated with the block $B$, such as:
+where $g\_B \in \mathcal{U}$ is a unique graph name associated with the block $B$, such as:
 
 $$
-g_B := \texttt{did:} \mathsf{issuer}(B) \\# \mathsf{id}(B)
+g\_B := \texttt{did:} \mathsf{issuer}(B) \\# \mathsf{id}(B)
 $$
 
 Alternatively, if using RDF-star or PROV-O, the reification can instead be:
@@ -41,7 +41,7 @@ Given a participant $u$, let $\mathcal{V}_u$ be the set of blocks **visible** un
 Define the participant’s **assembled state graph** $\mathsf{S}_u$ as:
 
 $$
-\mathsf{S}_u := \bigcup_{B \in \mathcal{V}_u} \mathsf{reify}(B)
+\mathsf{S}_u := ⋃_{B \in \mathcal{V}_u} \mathsf{reify}(B)
 $$
 
 That is, the total RDF graph is the union of all reified block payloads visible under $u$'s trust and traversal policy.
@@ -49,7 +49,7 @@ That is, the total RDF graph is the union of all reified block payloads visible 
 If RDF-star is used, this could equivalently be:
 
 $$
-\mathsf{S}_u := \bigcup_{B \in \mathcal{V}_u} \left\{ \ll t \gg \ \mathsf{prov:wasAttributedTo} \ \mathsf{issuer}(B) \right\}
+\mathsf{S}_u := ⋃_{B \in \mathcal{V}_u} \left\{ \ll t \gg \ \mathsf{prov:wasAttributedTo} \ \mathsf{issuer}(B) \right\}
 \quad \text{for each } t \in \mathsf{G}(B)
 $$
 
@@ -66,7 +66,7 @@ Thus, **state** is:
 - **Non-authoritative**: clients determine what to trust or prioritize
 
 
-# Summary
+## Summary
 
 | Concept             | Description                                                                |
 |---------------------|----------------------------------------------------------------------------|

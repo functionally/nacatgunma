@@ -167,7 +167,7 @@ This may include reconstructing RDF graphs, applying CRDT logic, filtering by is
 - Rejection is **non-destructive**: rejected blocks are still available in the DAG but **ignored** in a participant’s traversal.
 
 
-### Summary
+## Summary
 
 | Concept   | Formally                                                        |
 |-----------|-----------------------------------------------------------------|
