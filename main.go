@@ -190,6 +190,88 @@ func main() {
 					},
 
 					{
+						Name:  "inputs",
+						Usage: "Create inputs for a tip.",
+						Flags: []cli.Flag{
+							&cli.UintFlag{
+								Name:        "metadata-key",
+								Value:       58312,
+								Usage:       "Metadata key for the chain",
+								Destination: &metadataKey,
+							},
+							&cli.StringFlag{
+								Name:        "blockchain",
+								Value:       "https://github.com/functionally/nacatgunma",
+								Usage:       "The IRI identifying the blockchain",
+								Destination: &blockchain,
+							},
+							&cli.BoolFlag{
+								Name:        "script",
+								Required:    true,
+								Usage:       "Whether the credential is a script instead of a public key",
+								Destination: &script,
+							},
+							&cli.StringFlag{
+								Name:        "credential-hash",
+								Required:    true,
+								Usage:       "Blake2b224 hash of the credential, in hexadecimal",
+								Destination: &credential,
+							},
+							&cli.StringFlag{
+								Name:        "header-cid",
+								Required:    true,
+								Usage:       "The CID of the block header",
+								Destination: &headerCid,
+							},
+							&cli.StringFlag{
+								Name:        "datum-file",
+								Required:    true,
+								Usage:       "Output file for JSON-formatted datum",
+								Destination: &datumFile,
+							},
+							&cli.StringFlag{
+								Name:        "redeemer-file",
+								Required:    true,
+								Usage:       "Output file for JSON-formatted redeemer",
+								Destination: &redeemerFile,
+							},
+							&cli.StringFlag{
+								Name:        "metadata-file",
+								Required:    true,
+								Usage:       "Output file for JSON-formatted metadata",
+								Destination: &metadataFile,
+							},
+						},
+						Action: func(*cli.Context) error {
+							datum, err := cardano.NewDatum(script, credential, headerCid)
+							if err != nil {
+								return err
+							}
+							datumBytes, err := datum.ToJSON()
+							if err != nil {
+								return err
+							}
+							err = os.WriteFile(datumFile, datumBytes, 0644)
+							if err != nil {
+								return err
+							}
+							redeemerBytes, err := cardano.RedeemerJSON(metadataKey)
+							if err != nil {
+								return err
+							}
+							err = os.WriteFile(redeemerFile, redeemerBytes, 0644)
+							if err != nil {
+								return err
+							}
+							metadataBytes, err := cardano.MetadataJSON(metadataKey, blockchain, headerCid)
+							if err != nil {
+								return err
+							}
+							return os.WriteFile(metadataFile, metadataBytes, 0644)
+						},
+					},
+
+					{
 						Name:  "metadata",
 						Usage: "Create metadata for a tip.",
 						Flags: []cli.Flag{
