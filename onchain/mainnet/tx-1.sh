@@ -1,7 +1,7 @@
 export PATH=/extra/iohk/bin:$PATH
-export CARDANO_NODE_SOCKET_PATH=/extra/iohk/networks/preprod/node.socket
-export CARDANO_NODE_NETWORK_ID=1
-NETWORK=testnet
+export CARDANO_NODE_SOCKET_PATH=/extra/iohk/networks/mainnet/node.socket
+export CARDANO_NODE_NETWORK_ID=mainnet
+NETWORK=mainnet
 
 cardano-cli conway query utxo --address $(cat nacatgunma.$NETWORK.address)
 
@@ -10,10 +10,10 @@ cardano-cli conway query utxo --address $(cat controllers.$NETWORK.address)
 cardano-cli conway query utxo --address $(cat script-0.$NETWORK.address)
 
 cardano-cli conway transaction build \
-  --tx-in-collateral 7d5a14c0e4ee7ba23ac6c1430b97e6f18c6f4f9a2e397a118fb089b17f8ba7f4#1 \
-  --tx-in c4fb42bdca24628f96d3268c71253ebb9565453bf29de9b4ace70521a9bb9959#1 \
+  --tx-in-collateral 069bc8f72c074c9c4dc2b25a0fcdc0158a88260a37b63a9f16beca04ff6e227f#1 \
+  --tx-in f5adb165a5e32d4cacfa7e3e87ba126832ee2df23a24d45ed7e306b003704da2#1 \
     --tx-in-script-file controllers.script \
-  --tx-in c4fb42bdca24628f96d3268c71253ebb9565453bf29de9b4ace70521a9bb9959#0 \
+  --tx-in f5adb165a5e32d4cacfa7e3e87ba126832ee2df23a24d45ed7e306b003704da2#0 \
     --tx-in-script-file script-0.plutus \
     --tx-in-inline-datum-present \
     --tx-in-redeemer-file script-0.redeemer \

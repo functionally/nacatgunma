@@ -1,3 +1,0 @@
-<http://example.org/person#1234> <http://schema.org/name> "Alice" <http://example.org/g1>.
-<http://example.org/person#1234> <http://schema.org/knows> <http://example.org/person#5678> <http://example.org/g1>.
-<http://example.org/person#5678> <http://schema.org/name> "Bob" <http://example.org/g1>.

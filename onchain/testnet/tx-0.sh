@@ -9,13 +9,13 @@ cardano-cli conway query utxo --address $(cat nacatgunma.$NETWORK.address)
 cardano-cli conway query utxo --address $(cat controllers.$NETWORK.address)
 
 cardano-cli conway transaction build \
-  --tx-in 0b863a6ca567b3eed6f703a6546eaade7e7d9aeea8ccc182067300f92348c95b#1 \
+  --tx-in 82683878a41adcf19330e025b1fe08f342820ac487dc017b3a02c17951dcd630#1 \
     --tx-in-script-file controllers.script \
-  --tx-out "$(cat script-0.$NETWORK.address)+2000000+1 $(cat controllers.hash).4e6163617467756e6d61" \
-  --tx-out-datum-embed-file block-0.datum \
+  --tx-out "$(cat script-0.$NETWORK.address)+1500000+1 $(cat controllers.hash).4e6163617467756e6d61" \
+    --tx-out-inline-datum-file block-0.datum \
   --change-address $(cat controllers.$NETWORK.address) \
   --mint "1 $(cat controllers.hash).4e6163617467756e6d61" \
-  --mint-script-file controllers.script \
+    --mint-script-file controllers.script \
   --invalid-before 58312 \
   --json-metadata-no-schema \
   --metadata-json-file block-0.json \

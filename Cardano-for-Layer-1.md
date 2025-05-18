@@ -13,8 +13,8 @@ The Plutus smart contract for tracking the tip is written in [Pluto](https://git
 
 The contract has the following addresses:
 
-- Mainnet: [addr1w97pkwtxuqh3x8edfjhsndd5f8ymyu2gnnwq4wx7jytt7lcnu3lv5](https://cardanoscan.io/address/717c1b3966e02f131f2d4caf09b5b449c9b271489cdc0ab8de9116bf7f)
-- Preprod: [addr\_test1wp7pkwtxuqh3x8edfjhsndd5f8ymyu2gnnwq4wx7jytt7lcg59rr3](https://preprod.cardanoscan.io/address/707c1b3966e02f131f2d4caf09b5b449c9b271489cdc0ab8de9116bf7f)
+- Mainnet: [addr1w8lyu0uj30gyytukg25ynfypvqlw7tt4duuu7lqd09qrnugm34xp8](https://cardanoscan.io/address/71fe4e3f928bd0422f9642a849a481603eef2d756f39cf7c0d794039f1)
+- Preprod: [addr\_test1wrlyu0uj30gyytukg25ynfypvqlw7tt4duuu7lqd09qrnugqep6wz](https://preprod.cardanoscan.io/address/https://preprod.cardanoscan.io/address/70fe4e3f928bd0422f9642a849a481603eef2d756f39cf7c0d794039f1)
 
 
 ## Datum
@@ -57,5 +57,5 @@ For easiest on-chain discoverability of the CID of the tip, include the datum as
 
 See [onchain/mainnet/](onchain/mainnet/) and [onchain/testnet/](onchain/testnet/) for model transactions.
 
-1. [d4892fc7f2f50a493f03d43dea6158e7a3d3aafdf6c036704043284a1a54bd68](https://cardanoscan.io/transaction/d4892fc7f2f50a493f03d43dea6158e7a3d3aafdf6c036704043284a1a54bd68?tab=utxo)
-2. [1112d0521791e6e1439a66c7c7055b1f5fa56247e6b7e1113094e767dd413d8f](https://cardanoscan.io/transaction/1112d0521791e6e1439a66c7c7055b1f5fa56247e6b7e1113094e767dd413d8f?tab=utxo)
+1. [c4fb42bdca24628f96d3268c71253ebb9565453bf29de9b4ace70521a9bb9959](https://preprod.cardanoscan.io/transaction/c4fb42bdca24628f96d3268c71253ebb9565453bf29de9b4ace70521a9bb9959?tab=utxo)
+2. [ae1fa36e2f82b9d031169b8aaa2f139dcd62d93820122c3ff37cd0ee4386ef64](https://preprod.cardanoscan.io/transaction/ae1fa36e2f82b9d031169b8aaa2f139dcd62d93820122c3ff37cd0ee4386ef64?tab=utxo)
