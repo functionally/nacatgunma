@@ -44,71 +44,151 @@ func main() {
 		Commands: []*cli.Command{
 
 			{
-				Name:  "key",
-				Usage: "Key management subcommands",
+				Name:  "body",
+				Usage: "Body management subcommands",
 				Subcommands: []*cli.Command{
 
 					{
-						Name:  "generate",
-						Usage: "Generate an Ed25519 key.",
+						Name:  "rdf",
+						Usage: "Build a block of RDF N-quads.",
 						Flags: []cli.Flag{
 							&cli.StringFlag{
-								Name:        "key-file",
+								Name:        "rdf-file",
 								Required:    true,
-								Usage:       "Output file for private key",
-								Destination: &keyFile,
+								Usage:       "Input file of RDF N-quads",
+								Destination: &rdfFile,
+							},
+							&cli.StringFlag{
+								Name:        "base-uri",
+								Value:       "",
+								Usage:       "Base URI of the RDF",
+								Destination: &baseUri,
+							},
+							&cli.StringFlag{
+								Name:        "format",
+								Value:       "application/n-quads",
+								Usage:       "MIME type of the RDF format",
+								Destination: &format,
+							},
+							&cli.StringFlag{
+								Name:        "body-file",
+								Required:    true,
+								Usage:       "Output file for the block body",
+								Destination: &bodyFile,
 							},
 						},
 						Action: func(*cli.Context) error {
-							key, err := key.GenerateKey()
+							rdf, err := rdf.ReadRdf(rdfFile, baseUri, format)
 							if err != nil {
 								return err
 							}
-							err = key.WritePrivateKey(keyFile)
+							bodyBytes, err := ipfs.EncodeToDagCbor(rdf)
 							if err != nil {
 								return err
 							}
-							fmt.Println(key.Did)
+							bodyCid, err := ipfs.CidV1(bodyBytes)
+							if err != nil {
+								return err
+							}
+							err = os.WriteFile(bodyFile, bodyBytes, 0644)
+							if err != nil {
+								return err
+							}
+							fmt.Println(bodyCid)
 							return nil
 						},
 					},
 
 					{
-						Name:  "resolve",
-						Usage: "Resolve an Ed25519 key.",
+						Name:  "export",
+						Usage: "Export a body as JSON.",
 						Flags: []cli.Flag{
 							&cli.StringFlag{
-								Name:        "key-did",
+								Name:        "body-file",
 								Required:    true,
-								Usage:       "The DID for the public key",
-								Destination: &keyDid,
+								Usage:       "Input file for the block body",
+								Destination: &bodyFile,
 							},
 							&cli.StringFlag{
 								Name:        "output-file",
 								Required:    true,
-								Usage:       "Output JSON file for DID resolution",
+								Usage:       "Output file for the block body",
 								Destination: &jsonFile,
 							},
 						},
 						Action: func(*cli.Context) error {
-							resolution, err := key.ResolveDid(keyDid)
+							bodyBytes, err := os.ReadFile(bodyFile)
 							if err != nil {
 								return err
 							}
-							json, err := json.MarshalIndent(resolution, "", "  ")
-							if err != nil {
-								return fmt.Errorf("failed to marshal DocResolution: %w", err)
-							}
-							err = os.WriteFile(jsonFile, json, 0644)
+							body, err := ipfs.DecodeFromDagCbor(bodyBytes)
 							if err != nil {
 								return err
 							}
-							return nil
+							json, err := json.MarshalIndent(body, "", "  ")
+							if err != nil {
+								return fmt.Errorf("failed to marshal body: %w", err)
+							}
+							return os.WriteFile(jsonFile, json, 0644)
 						},
 					},
 				},
 			},
 
+			{
+				Name:  "cardano",
+				Usage: "Interact with Cardano",
+				Subcommands: []*cli.Command{
+
+					{
+						Name:  "tips",
+						Usage: "Find the tips.",
+						Flags: []cli.Flag{
+							&cli.StringFlag{
+								Name:        "node-socket",
+								Required:    true,
+								Usage:       "Path to the Cardano node socket",
+								Destination: &nodeSocket,
+							},
+							&cli.UintFlag{
+								Name:        "network-magic",
+								Value:       764824073,
+								Usage:       "Magic number for the Cardano network",
+								Destination: &networkMagic,
+							},
+							&cli.StringFlag{
+								Name:        "script-address",
+								Required:    true,
+								Usage:       "Address of the Plutus script for the tip",
+								Destination: &address,
+							},
+							&cli.StringFlag{
+								Name:        "tips-file",
+								Value:       "/dev/stdout",
+								Usage:       "Output JSON file for tip information",
+								Destination: &tipFile,
+							},
+						},
+						Action: func(*cli.Context) error {
+							addr, err := common.NewAddress(address)
+							if err != nil {
+								return err
+							}
+							client, err := cardano.NewClient(nodeSocket, uint32(networkMagic))
+							if err != nil {
+								return err
+							}
+							tips, err := client.TipsV1(addr)
+							if err != nil {
+								return err
+							}
+							fmt.Printf("%v\n", *tips[0].Rep())
+							jsonBytes, _ := json.MarshalIndent(cardano.TipReps(tips), "", "  ")
+							return os.WriteFile(tipFile, jsonBytes, 0644)
+						},
+					},
+				},
+			},
 			{
 				Name:  "header",
 				Usage: "Header management subcommands",
@@ -280,92 +360,66 @@ func main() {
 			},
 
 			{
-				Name:  "body",
-				Usage: "Body management subcommands",
+				Name:  "key",
+				Usage: "Key management subcommands",
 				Subcommands: []*cli.Command{
 
 					{
-						Name:  "rdf",
-						Usage: "Build a block of RDF N-quads.",
+						Name:  "generate",
+						Usage: "Generate an Ed25519 key.",
 						Flags: []cli.Flag{
 							&cli.StringFlag{
-								Name:        "rdf-file",
+								Name:        "key-file",
 								Required:    true,
-								Usage:       "Input file of RDF N-quads",
-								Destination: &rdfFile,
-							},
-							&cli.StringFlag{
-								Name:        "base-uri",
-								Value:       "",
-								Usage:       "Base URI of the RDF",
-								Destination: &baseUri,
-							},
-							&cli.StringFlag{
-								Name:        "format",
-								Value:       "application/n-quads",
-								Usage:       "MIME type of the RDF format",
-								Destination: &format,
-							},
-							&cli.StringFlag{
-								Name:        "body-file",
-								Required:    true,
-								Usage:       "Output file for the block body",
-								Destination: &bodyFile,
+								Usage:       "Output file for private key",
+								Destination: &keyFile,
 							},
 						},
 						Action: func(*cli.Context) error {
-							rdf, err := rdf.ReadRdf(rdfFile, baseUri, format)
+							key, err := key.GenerateKey()
 							if err != nil {
 								return err
 							}
-							bodyBytes, err := ipfs.EncodeToDagCbor(rdf)
+							err = key.WritePrivateKey(keyFile)
 							if err != nil {
 								return err
 							}
-							bodyCid, err := ipfs.CidV1(bodyBytes)
-							if err != nil {
-								return err
-							}
-							err = os.WriteFile(bodyFile, bodyBytes, 0644)
-							if err != nil {
-								return err
-							}
-							fmt.Println(bodyCid)
+							fmt.Println(key.Did)
 							return nil
 						},
 					},
 
 					{
-						Name:  "export",
-						Usage: "Export a body as JSON.",
+						Name:  "resolve",
+						Usage: "Resolve an Ed25519 key.",
 						Flags: []cli.Flag{
 							&cli.StringFlag{
-								Name:        "body-file",
+								Name:        "key-did",
 								Required:    true,
-								Usage:       "Input file for the block body",
-								Destination: &bodyFile,
+								Usage:       "The DID for the public key",
+								Destination: &keyDid,
 							},
 							&cli.StringFlag{
 								Name:        "output-file",
 								Required:    true,
-								Usage:       "Output file for the block body",
+								Usage:       "Output JSON file for DID resolution",
 								Destination: &jsonFile,
 							},
 						},
 						Action: func(*cli.Context) error {
-							bodyBytes, err := os.ReadFile(bodyFile)
+							resolution, err := key.ResolveDid(keyDid)
 							if err != nil {
 								return err
 							}
-							body, err := ipfs.DecodeFromDagCbor(bodyBytes)
+							json, err := json.MarshalIndent(resolution, "", "  ")
+							if err != nil {
+								return fmt.Errorf("failed to marshal DocResolution: %w", err)
+							}
+							err = os.WriteFile(jsonFile, json, 0644)
 							if err != nil {
 								return err
 							}
-							json, err := json.MarshalIndent(body, "", "  ")
-							if err != nil {
-								return fmt.Errorf("failed to marshal body: %w", err)
-							}
-							return os.WriteFile(jsonFile, json, 0644)
+							return nil
 						},
 					},
 				},
@@ -521,61 +575,6 @@ func main() {
 								return err
 							}
 							return nil
-						},
-					},
-				},
-			},
-
-			{
-				Name:  "cardano",
-				Usage: "Interact with Cardano",
-				Subcommands: []*cli.Command{
-
-					{
-						Name:  "tips",
-						Usage: "Find the tips.",
-						Flags: []cli.Flag{
-							&cli.StringFlag{
-								Name:        "node-socket",
-								Required:    true,
-								Usage:       "Path to the Cardano node socket",
-								Destination: &nodeSocket,
-							},
-							&cli.UintFlag{
-								Name:        "network-magic",
-								Value:       764824073,
-								Usage:       "Magic number for the Cardano network",
-								Destination: &networkMagic,
-							},
-							&cli.StringFlag{
-								Name:        "script-address",
-								Required:    true,
-								Usage:       "Address of the Plutus script for the tip",
-								Destination: &address,
-							},
-							&cli.StringFlag{
-								Name:        "tips-file",
-								Value:       "/dev/stdout",
-								Usage:       "Output JSON file for tip information",
-								Destination: &tipFile,
-							},
-						},
-						Action: func(*cli.Context) error {
-							addr, err := common.NewAddress(address)
-							if err != nil {
-								return err
-							}
-							client, err := cardano.NewClient(nodeSocket, uint32(networkMagic))
-							if err != nil {
-								return err
-							}
-							tips, err := client.TipsV1(addr)
-							if err != nil {
-								return err
-							}
-							fmt.Printf("%v\n", *tips[0].Rep())
-							jsonBytes, _ := json.MarshalIndent(cardano.TipReps(tips), "", "  ")
-							return os.WriteFile(tipFile, jsonBytes, 0644)
 						},
 					},
 				},
