@@ -9,8 +9,7 @@ cardano-cli conway query utxo --address $(cat nacatgunma.$NETWORK.address)
 cardano-cli conway query utxo --address $(cat controllers.$NETWORK.address)
 
 cardano-cli conway transaction build \
-  --tx-in 1112d0521791e6e1439a66c7c7055b1f5fa56247e6b7e1113094e767dd413d8f#0 \
-  --tx-in 1112d0521791e6e1439a66c7c7055b1f5fa56247e6b7e1113094e767dd413d8f#1 \
+  --tx-in ad4f9d12f8f9ffd80e5352c1d40137052ca0ee6e608c1eea645346b1e616d12f#1 \
     --tx-in-script-file controllers.script \
   --tx-out "$(cat script-0.$NETWORK.address)+1500000+1 $(cat controllers.hash).4e6163617467756e6d61" \
     --tx-out-inline-datum-file block-0.datum \
