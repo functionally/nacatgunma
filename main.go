@@ -156,6 +156,12 @@ func main() {
 								Destination: &payload.MediaType,
 							},
 							&cli.StringFlag{
+								Name:        "comment",
+								Value:       "",
+								Usage:       "Creator-supplied comment on the block",
+								Destination: &payload.Comment,
+							},
+							&cli.StringFlag{
 								Name:        "header-file",
 								Required:    true,
 								Usage:       "Output file for the block header CBOR",

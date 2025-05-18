@@ -22,6 +22,7 @@ type Payload struct {
 	Body      cid.Cid
 	SchemaUri string
 	MediaType string
+	Comment   string
 }
 
 func (payload *Payload) MakeNode() datamodel.Node {
@@ -41,6 +42,7 @@ func (payload *Payload) MakeNode() datamodel.Node {
 			assembler.AssembleEntry("Body").AssignLink(cidlink.Link{Cid: payload.Body})
 			assembler.AssembleEntry("Schema").AssignString(payload.SchemaUri)
 			assembler.AssembleEntry("MediaType").AssignString(payload.MediaType)
+			assembler.AssembleEntry("Comment").AssignString(payload.Comment)
 		})
 }
 
@@ -125,6 +127,13 @@ func decodePayload(node ipld.Node) (*Payload, error) {
 			return nil, err
 		}
 		payload.MediaType = s
+	}
+	if v, err := node.LookupByString("Comment"); err == nil {
+		s, err := v.AsString()
+		if err != nil {
+			return nil, err
+		}
+		payload.Comment = s
 	}
 	return payload, nil
 }
