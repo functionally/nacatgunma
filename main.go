@@ -37,6 +37,9 @@ func main() {
 	var networkMagic uint
 	var address string
 	var tipFile string
+	var script bool
+	var credential string
+	var datumFile string
 
 	app := &cli.App{
 		Name:  "nacatgunma",
@@ -141,6 +144,48 @@ func main() {
 				Subcommands: []*cli.Command{
 
 					{
+						Name:  "datum",
+						Usage: "Create datum for a tip.",
+						Flags: []cli.Flag{
+							&cli.BoolFlag{
+								Name:        "script",
+								Required:    true,
+								Usage:       "Whether the credential is a script instead of a public key",
+								Destination: &script,
+							},
+							&cli.StringFlag{
+								Name:        "credential-hash",
+								Required:    true,
+								Usage:       "Blake2b224 hash of the credential, in hexadecimal",
+								Destination: &credential,
+							},
+							&cli.StringFlag{
+								Name:        "header-cid",
+								Required:    true,
+								Usage:       "The CID of the block header",
+								Destination: &headerCid,
+							},
+							&cli.StringFlag{
+								Name:        "datum-file",
+								Value:       "/dev/stdout",
+								Usage:       "Output file for JSON-formatted datum",
+								Destination: &datumFile,
+							},
+						},
+						Action: func(*cli.Context) error {
+							datum, err := cardano.NewDatum(script, credential, headerCid)
+							if err != nil {
+								return err
+							}
+							datumBytes, err := datum.ToJSON()
+							if err != nil {
+								return err
+							}
+							return os.WriteFile(datumFile, datumBytes, 0644)
+						},
+					},
+
+					{
 						Name:  "tips",
 						Usage: "Find the tips.",
 						Flags: []cli.Flag{
@@ -182,13 +227,13 @@ func main() {
 							if err != nil {
 								return err
 							}
-							fmt.Printf("%v\n", *tips[0].Rep())
 							jsonBytes, _ := json.MarshalIndent(cardano.TipReps(tips), "", "  ")
 							return os.WriteFile(tipFile, jsonBytes, 0644)
 						},
 					},
 				},
 			},
+
 			{
 				Name:  "header",
 				Usage: "Header management subcommands",
