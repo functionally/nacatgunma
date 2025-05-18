@@ -49,7 +49,7 @@ That is, the total RDF graph is the union of all reified block payloads visible 
 If RDF-star is used, this could equivalently be:
 
 $$
-\mathsf{S}\_u := \bigcup\_{B \in \mathcal{V}\_u} \left\{ \ll t \gg \ \mathsf{prov:wasAttributedTo} \ \mathsf{issuer}(B) \right\}
+\mathsf{S}\_u := \bigcup\_{B \in \mathcal{V}\_u} \left\\{ \ll t \gg \ \mathsf{prov:wasAttributedTo} \ \mathsf{issuer}(B) \right\\}
 \quad \text{for each } t \in \mathsf{G}(B)
 $$
 
