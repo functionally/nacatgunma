@@ -241,3 +241,24 @@ nacatgunma ipfs fetch \
   --header-file h.cbor \
   --body-file b.cbor
 ```
+
+
+### Fetch the tip from Cardano
+
+```bash
+nacatgunma cardano tips \
+  --node-socket preprod.socket \
+  --network-magic 1 \
+  --script-address $(cat onchain/script-0.testnet.address)
+```
+
+```json
+[
+  {
+    "TxId": "c37f280000dac5f5e1c1b36413f786403170fc21c4e186625a7906a1d0fc2445#0",
+    "ScriptCredential": true,
+    "CredentialHash": "30135f08305143796de4276083cc54e47fbcafb176df6b58ab309446",
+    "HeaderCid": "bafyreignmx5htp2z4dzzqvty5bzpyw72yueqas7jzcw2qjfje7rakshzna"
+  }
+]
+```
