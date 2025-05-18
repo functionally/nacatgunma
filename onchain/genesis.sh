@@ -9,7 +9,7 @@ PRIV_KEY=key-0.pem
 COMMENT="Genesis block for the Nacatgunma blockchain."
 
 BODY=body-0
-BODY_IRI=urn-uuid:$(uuidgen)#
+BODY_IRI=urn:uuid:$(uuidgen)#
 BODY_TTL="$BODY.ttl"
 BODY_NQ="$BODY.nq"
 BODY_CBOR="$BODY.cbor"
