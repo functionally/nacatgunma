@@ -1,6 +1,6 @@
 # Nacatgunma
 
-Nacatgunma is an experimental blockchain that supports fluid consensus.
+[Nacatgunma](Colophon.md) is an experimental blockchain that supports fluid consensus.
 
 1. The blockchain is a DAG (directed acyclic graph), potentially with multiple tips.
 2. Anyone can extend the chain by signing a new block that references one or more parents.
