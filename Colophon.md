@@ -41,3 +41,5 @@ This term was created to characterize systems—such as trust-based blockchains,
 ; skos:example "lo nacatgunma cu simsa lo kibystu poi na se catni gi'e bandu lo panra be lo gunma poi co'a jivna lo ka terdi selcatni."@jbo
 .
 ```
+
+🔗 [nacatgunma.ttl](nacatgunma.ttl)
