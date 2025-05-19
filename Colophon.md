@@ -7,11 +7,15 @@
 lo gunma poi na se catni – lo gunma cu se zbasu gi'e renro lo catni.
 .i lo nacatgunma cu gunma na se catni gi'e panra lo gunma poi co'a jivna lo ka terdi selcatni.
 
+---
+
 **Gloss:** *non-authoritative collective*
 
 A coined Lojban compound denoting a group or collective that explicitly lacks hierarchical authority or imposed leadership. It reflects the ideal of decentralized consensus and mutual association without coercive control.
 
 This term was created to characterize systems—such as trust-based blockchains, anarchosyndicalist federations, or distributed knowledge networks—that operate without centralized command, emphasizing autonomy, solidarity, and cooperative structure.
+
+---
 
 ```turtle
 @prefix dcterms: <http://purl.org/dc/terms/> .
