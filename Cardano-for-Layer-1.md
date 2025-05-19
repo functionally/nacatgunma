@@ -1,4 +1,4 @@
-# Using Cardand for Layer 1
+# Extension: Using Cardano for Layer 1
 
 Cardano can be used as a Layer 1 by Nacatgunma. Users can publicize their new tips via Cardano smart-contract transactions.
 
