@@ -1,0 +1,21 @@
+{
+  "58312" : {
+    "blockchain" : "https://github.com/functionally/nacatgunma",
+    "header" : {
+      "ipfs" : "bafyreignmx5htp2z4dzzqvty5bzpyw72yueqas7jzcw2qjfje7rakshzna"
+    }
+  },
+  "721": {
+    "30135f08305143796de4276083cc54e47fbcafb176df6b58ab309446": {
+      "Nacatgunma": {
+	"symbol": "Nacatgunma",
+        "name": "Nacatgunma blockchain",
+        "description": "An experimental blockchain that supports fluid consensus.",
+        "image": "ipfs://QmWNjBFfLPHroNQTFWmpXBxHsXWfSZgW3u9pL6xsWHU5pz",
+        "mediaType": "image/png",
+        "url": "https://github.com/functionally/nacatgunma"
+      }
+    },
+    "version": "1.0"
+  }
+}

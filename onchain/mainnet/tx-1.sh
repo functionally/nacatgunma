@@ -10,18 +10,19 @@ cardano-cli conway query utxo --address $(cat controllers.$NETWORK.address)
 cardano-cli conway query utxo --address $(cat script-0.$NETWORK.address)
 
 cardano-cli conway transaction build \
-  --tx-in-collateral 069bc8f72c074c9c4dc2b25a0fcdc0158a88260a37b63a9f16beca04ff6e227f#1 \
-  --tx-in f5adb165a5e32d4cacfa7e3e87ba126832ee2df23a24d45ed7e306b003704da2#1 \
+  --tx-in-collateral 8042f83c9c52ce173750f79d0163b70ad127ee6c225cd2a57b1249689c1cf164#0 \
+  --tx-in 8716dc99ad7051047a6fa8f872e3023ada692b71f2c71ffc94988448ed3d9341#1 \
     --tx-in-script-file controllers.script \
-  --tx-in f5adb165a5e32d4cacfa7e3e87ba126832ee2df23a24d45ed7e306b003704da2#0 \
+  --tx-in 8716dc99ad7051047a6fa8f872e3023ada692b71f2c71ffc94988448ed3d9341#0 \
     --tx-in-script-file script-0.plutus \
     --tx-in-inline-datum-present \
     --tx-in-redeemer-file script-0.redeemer \
-  --tx-out "$(cat nacatgunma.$NETWORK.address)+2000000" \
-  --mint "-1 $(cat controllers.hash).4e6163617467756e6d61" \
-  --mint-script-file controllers.script \
+  --tx-out "$(cat script-0.$NETWORK.address)+1500000+1 $(cat controllers.hash).4e6163617467756e6d61" \
+    --tx-out-inline-datum-file block-1.datum \
   --change-address $(cat controllers.$NETWORK.address) \
   --invalid-before 58312 \
+  --json-metadata-no-schema \
+  --metadata-json-file block-1.json \
   --out-file tx-1.unsigned
 
 cardano-cli conway transaction sign \
