@@ -1,5 +1,7 @@
 # Nacatgunma
 
+![nacatgunma token](onchain/nft-0.svg)
+
 [Nacatgunma](Colophon.md) is an experimental blockchain that supports fluid consensus.
 
 1. The blockchain is a DAG (directed acyclic graph), potentially with multiple tips.

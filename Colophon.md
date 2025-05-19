@@ -1,7 +1,5 @@
 # Colophon
 
-![nacatgunma token](onchain/nft-0.svg)
-
 **nacatgunma** *(Lojban lujvo)*
 
 *from* **na** *(not)* + **catni** *(authoritative)* + **gunma** *(collective, mass)*
