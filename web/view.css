@@ -5,6 +5,7 @@ html, body {
 }
 
 h1 a {
+  font-weight: lighter;
   text-decoration: none;
 }
 

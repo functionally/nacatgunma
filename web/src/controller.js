@@ -168,7 +168,7 @@ function utxoEdge(utxoId, headerId) {
   return edgeId
 }
 
-function chainEdge(parentId, headerId) {
+function acceptEdge(parentId, headerId) {
   const edgeId = parentId + "|" + headerId
   if (data.edges.getIds().filter(id => id == edgeId).length > 0)
     return edgeId
@@ -177,6 +177,20 @@ function chainEdge(parentId, headerId) {
     from: parentId,
     to: headerId,
     color: "cornflowerblue",
+  })
+  return edgeId
+}
+
+function rejectEdge(parentId, headerId) {
+  const edgeId = parentId + "|" + headerId
+  if (data.edges.getIds().filter(id => id == edgeId).length > 0)
+    return edgeId
+  data.edges.add({
+    id: edgeId,
+    from: parentId,
+    to: headerId,
+    color: "crimson",
+    dashes: true,
   })
   return edgeId
 }
@@ -212,7 +226,11 @@ function addBlock(headerCid, level = 0) {
     bodyEdge(headerId, bodyId)
     result.Payload.Accept.forEach(function(accept) {
       const blockId = addBlock(accept, level + 1)
-      chainEdge(headerId, blockId)
+      acceptEdge(headerId, blockId)
+    })
+    result.Payload.Reject.forEach(function(reject) {
+      const blockId = addBlock(reject, level + 1)
+      reject(headerId, blockId)
     })
   })
   return headerId
