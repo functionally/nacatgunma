@@ -61,14 +61,15 @@ async function fetchIpldCbor(cid, followup) {
     if (this.readyState == 4) {
       if (this.status == 200) {
         const contentType = this.getResponseHeader("Content-type")
+        const response = this.response
         if (contentType == "application/vnd.ipld.dag-json") {
-          const res = JSON.parse(textDecoder.decode(this.response))
+          const res = JSON.parse(textDecoder.decode(response))
           followup(res)
-	} else if (contentType == "application/vnd.ipld.dag-cbor") {
-          const res = DagCbor.decode(new Uint8Array(this.response))
+        } else if (contentType == "application/vnd.ipld.dag-cbor") {
+          const res = DagCbor.decode(new Uint8Array(response))
           followup(res)
-	} else {
-          reportError("Failed to decode block header.")
+        } else {
+          reportError("Failed to decode block header (Content-type = " + contentType + ").")
         }
       } else {
         reportError("IPFS gateway status: " + this.status)
@@ -281,7 +282,7 @@ export function drawBlocks() {
       const nodeId = params.nodes[0]
       try {
         CID.parse(nodeId)
-        window.open(ensureTrailingSlash(uiIpfsGateway.value) + "ipfs/" + nodeId, "nacatgunma")
+        window.open(ensureTrailingSlash(uiIpldExplorer.value) + nodeId, "nacatgunma")
       } catch (err) {
         if (nodeId.includes("#"))
           window.open(ensureTrailingSlash(uiCardanoExplorer.value) + "transaction/" + nodeId.split('#')[0], "nacatgunma")
@@ -299,9 +300,10 @@ const KEY_FILTER_TOKEN = "filterToken"
 const KEY_BLOCKFROST_URL = "blockfrostUrl"
 const KEY_BLOCKFROST_TOKEN = "blockfrostToken"
 const KEY_IPFS_GATEWAY = "ipfsGateway"
+const KEY_IPLD_EXPLORER = "ipldExplorer"
 const KEY_CARDANO_EXPLORER = "cardanoExplorer"
 
-function setupPersistence(key, element, defaultValue) {
+function setupPersistence(key, element, defaultValue, followup) {
   const value = localStorage.getItem(key)
   if (value) {
     element.value = value
@@ -310,17 +312,26 @@ function setupPersistence(key, element, defaultValue) {
   }
   element.addEventListener("change", function() {
     localStorage.setItem(key, element.value)
+    if (followup)
+      followup()
   })
+}
+
+function reset() {
+  data.nodes =new DataSet()
+  data.edges =new DataSet()
+  fetchTips()
 }
 
 
 export async function initialize() {
 
-  setupPersistence(KEY_SCRIPT_ADDRESS, uiScriptAddress, "addr1w8lyu0uj30gyytukg25ynfypvqlw7tt4duuu7lqd09qrnugm34xp8")
-  setupPersistence(KEY_FILTER_TOKEN, uiFilterToken, "30135f08305143796de4276083cc54e47fbcafb176df6b58ab3094464e6163617467756e6d61")
-  setupPersistence(KEY_BLOCKFROST_URL, uiBlockfrostUrl, "https://cardano-mainnet.blockfrost.io/api/v0/")
-  setupPersistence(KEY_BLOCKFROST_TOKEN, uiBlockfrostToken)
-  setupPersistence(KEY_IPFS_GATEWAY, uiIpfsGateway, "https://ipfs.io/")
+  setupPersistence(KEY_SCRIPT_ADDRESS, uiScriptAddress, "addr1w8lyu0uj30gyytukg25ynfypvqlw7tt4duuu7lqd09qrnugm34xp8", reset)
+  setupPersistence(KEY_FILTER_TOKEN, uiFilterToken, "30135f08305143796de4276083cc54e47fbcafb176df6b58ab3094464e6163617467756e6d61", reset)
+  setupPersistence(KEY_BLOCKFROST_URL, uiBlockfrostUrl, "https://cardano-mainnet.blockfrost.io/api/v0/", reset)
+  setupPersistence(KEY_BLOCKFROST_TOKEN, uiBlockfrostToken, null, reset)
+  setupPersistence(KEY_IPFS_GATEWAY, uiIpfsGateway, "https://ipfs.io/", reset)
+  setupPersistence(KEY_IPLD_EXPLORER, uiIpldExplorer, "https://explore.ipld.io/#/explore/")
   setupPersistence(KEY_CARDANO_EXPLORER, uiCardanoExplorer, "https://cardanoscan.io/")
 
   drawBlocks()
