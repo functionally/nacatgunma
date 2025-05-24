@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="view.css" type="text/css" rel="stylesheet"/>
+    <script src="controller.js" type="application/javascript"> </script>
+    <title>Nacatgunma</title>
+  </head>
+  <body id="uiBody" onload="Controller.initialize()">
+    <h1>Nacatgunma <a title="Nacatgunma is an experimental blockchain that supports fluid consensus." href="https://github.com/functionally/nacatgunma/blob/main/ReadMe.md" target="nacatgunma">🛈</a></h1>
+    <hr/>
+    <div id="uiCanvas">
+    </div>
+    <div class="footer">
+      <hr/>
+      <div class="controls">
+        <div class="control">
+          <label for="uiScriptAddress">Script address</label> <a title="A Cardano smart contract tracks the tip of the Nacatgunma blockchain." href="https://github.com/functionally/nacatgunma/blob/main/ReadMe.md" target="nacatgunma">🛈</a>
+          <br/>
+          <input id="uiScriptAddress" type="text"/>
+        </div>
+        <div class="control">
+          <label for="uiFilterToken">Filter by token</label> <a title="A Cardano token can be used to tag Nacatgunma tips of interest." href="https://github.com/functionally/nacatgunma/blob/main/ReadMe.md" target="nacatgunma">🛈</a>
+          <br/>
+          <input id="uiFilterToken" type="text"/>
+        </div>
+        <div class="control">
+          <label for="uiBlockfrostUrl">Blockfrost URL</label> <a title="Blockfrost is used to track Cardano transactions." href="https://blockfrost.io/dashboard" target="nacatgunma">🛈</a>
+          <br/>
+          <input id="uiBlockfrostUrl" type="text"/>
+        </div>
+        <div class="control">
+          <label for="uiBlockfrostToken">Blockfrost token</label> <a title="An API token is required to use Blockfrost." href="https://blockfrost.io/dashboard" target="nacatgunma">🛈</a>
+          <br/>
+          <input id="uiBlockfrostToken" type="password"/>
+        </div>
+        <div class="control">
+          <label for="uiIpfsGateway">IPFS gateway</label> <a title="Blocks are retrieved via an IPFS gateway." href="https://ipfs.github.io/public-gateway-checker/" target="nacatgunma">🛈</a>
+          <br/>
+          <input id="uiIpfsGateway" type="text"/>
+        </div>
+        <div class="control">
+          <label for="uiCardanoExplorer">Cardano explorer</label> <a title="Transactions are retrieved via a Cardano explorer." href="https://explorer.cardano.org/" target="nacatgunma">🛈</a>
+          <br/>
+          <input id="uiCardanoExplorer" type="text"/>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

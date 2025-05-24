@@ -1,0 +1,59 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: sans-serif;
+}
+
+h1 a {
+  text-decoration: none;
+}
+
+#uiCanvas {
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.footer {
+  position: fixed;
+  width: 100vw;
+  bottom: 0;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.control {
+  display: block;
+  background-color: gainsboro;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: smaller;
+}
+
+.control a {
+  text-decoration: none;
+}
+
+.control input {
+  width: 13vw;
+  font-family: monospace;
+  font-size: smaller;
+}
+
+.vis-tooltip {
+  position: absolute;
+  background-color: lightgray;
+  opacity: 0.75;
+}
+
+.vis-tooltip table {
+  border-spacing: 5px;
+  border-collapse: separate;
+}
+
+.vis-tooltip th {
+  text-align: left;
+}
