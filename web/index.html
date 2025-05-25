@@ -2,13 +2,17 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="icon" type="image/x-icon" href="nacatgunma.ico">
     <link href="view.css" type="text/css" rel="stylesheet"/>
     <script src="controller.js" type="application/javascript"> </script>
     <title>Nacatgunma</title>
   </head>
   <body id="uiBody" onload="Controller.initialize()">
-    <h1>Nacatgunma <a title="Nacatgunma is an experimental blockchain that supports fluid consensus." href="https://github.com/functionally/nacatgunma/blob/main/ReadMe.md" target="nacatgunma">🛈</a></h1>
-    <hr/>
+    <div class="header">
+      <a title="Nacatgunma is an experimental blockchain that supports fluid consensus." href="https://github.com/functionally/nacatgunma/blob/main/ReadMe.md" target="nacatgunma">
+        <img id="uiImage" src="nacatgunma.svg"/>
+      </a>
+    </div>
     <div id="uiCanvas">
     </div>
     <div class="footer">
@@ -50,12 +54,12 @@
           <input id="uiCardanoExplorer" type="text"/>
         </div>
         <div class="control" style="width:13vw">
-          <label id="uiLevelLimitLabel" for="uiLevelLimit">Maximum depth</label> <span title="Maximum depth of blocks to display.">🛈</span>
+          <label id="uiLevelLimitLabel" for="uiLevelLimit">Maximum depth</label>
           <br/>
-          <input id="uiLevelLimit" type="range" min="1", max="500" value="100"/>
+          <input id="uiLevelLimit" title="Maximum depth of blocks to display." type="range" min="1", max="500" value="100"/>
         </div>
         <div class="control" style="width:8vw">
-          <button id="uiRefresh">refresh</button>
+          <button id="uiRefresh" title="Fetch any new transactions and blocks.">refresh</button>
         </div>
       </div>
     </div>

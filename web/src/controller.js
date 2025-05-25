@@ -341,6 +341,7 @@ function setupPersistence(key, element, defaultValue, followup) {
 function reset() {
   data.nodes =new DataSet()
   data.edges =new DataSet()
+console.log("REFRESH")
   fetchTips()
 }
 
@@ -356,7 +357,7 @@ export async function initialize() {
   setupPersistence(KEY_BLOCKFROST_TOKEN, uiBlockfrostToken, null, reset)
   setupPersistence(KEY_IPFS_GATEWAY, uiIpfsGateway, "https://ipfs.io/", reset)
   setupPersistence(KEY_IPLD_EXPLORER, uiIpldExplorer, "https://explore.ipld.io/#/explore/")
-  setupPersistence(KEY_CARDANO_EXPLORER, uiCardanoExplorer, "https://cardanoscan.io/")
+  setupPersistence(KEY_CARDANO_EXPLORER, uiCardanoExplorer, "https://cardanoscan.io/transaction/")
   setupPersistence(KEY_LEVEL_LIMIT, uiLevelLimit, 100, reset)
 
   uiLevelLimit.oninput = updateLimit
