@@ -31,6 +31,7 @@ HEADER_CID=$(
 ipfs dag put --input-codec dag-cbor --store-codec dag-cbor --pin=false "$HEADER_CBOR"
 
 echo "$HEADER_CID" > "$HEADER.cid"
+echo "$BODY_CID" > "$BODY.cid"
 
 ipfs cid format -b base16 -f %s "$HEADER_CID" | tail -c +2 > "$HEADER.cid16"
 

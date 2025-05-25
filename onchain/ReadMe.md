@@ -3,6 +3,9 @@
 [This folder](./) contains scripts and artifacts from operating the Nacatgunma chain with Cardano mainnet as the Layer 1.
 
 
+Use the [Nacatgunma Explorer](https://ipfs.io/ipfs/bafybeighyzhjjjnh7rcdz25xuok2wcmr2rnffwv2rqyr5ff3vc7bwqta4a) to see the the latest tip on Cardano mainnet.
+
+
 ## Artifacts
 
 - Genesis transaction: [91489f0e05ca07de762aafa021b8fb79d0e330dc72e2cc20cba5fd6aed7bd841](https://cardanoscan.io/transaction/91489f0e05ca07de762aafa021b8fb79d0e330dc72e2cc20cba5fd6aed7bd841?tab=utxo)
