@@ -18,7 +18,7 @@ function reportError(message) {
 }
 
 function ensureTrailingSlash(url) {
-  return url.endsWith("/") ? url : str + "/"
+  return url.endsWith("/") ? url : url + "/"
 }
 
 
@@ -49,6 +49,7 @@ async function fetchScriptUtxos(followup) {
   xhttp.setRequestHeader("Accept", "application/json")
   xhttp.send()
 }
+
 
 const ipldCache = {}
 
@@ -113,6 +114,7 @@ function createHTMLTitle(html) {
   element.innerHTML = html
   return element
 }
+
 
 function utxoNode(utxo, level = 1) {
   const utxoId = utxo.tx_hash + "#" + utxo.tx_index 
@@ -216,6 +218,7 @@ function bodyEdge(headerId, bodyId) {
   return edgeId
 }
 
+
 function addBlock(headerCid, level = 1) {
   const headerId = extractCid(headerCid)
   if (headerId == null)
@@ -252,6 +255,7 @@ function addUtxo(utxo) {
   utxoEdge(utxoId, headerId)
 }
 
+
 async function fetchTips() {
   fetchScriptUtxos(function(candidates) {
     const utxos = candidates.filter(function(utxo) {
@@ -276,7 +280,7 @@ async function fetchTips() {
 }
 
 
-export let network = null
+let network = null
 
 const data = {
   nodes: new DataSet(),
