@@ -362,6 +362,8 @@ export async function initialize() {
   uiLevelLimit.oninput = updateLimit
   updateLimit()
 
+  uiRefresh.onclick = reset
+
   drawBlocks()
 
   fetchTips()
