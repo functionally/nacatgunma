@@ -116,7 +116,7 @@ function utxoNode(utxo, level = 0) {
     label: shortenLabel(utxoId),
     color: "coral",
     shape: "ellipse",
-    level: level - 1,
+//  level: level - 1,
   })
   return utxoId
 }
@@ -130,7 +130,7 @@ function headerNode(headerId, tooltip, level = 0) {
     label: shortenLabel(headerId),
     color: "cornflowerblue",
     shape: "box",
-    level,
+//  level,
   })
   return headerId
 }
@@ -147,7 +147,7 @@ function bodyNode(bodyCid, tooltip, level = 0) {
     label: shortenLabel(bodyId),
     color: "darkseagreen",
     shape: "box",
-    level,
+//  level,
     shapeProperties: {
       borderRadius: 0,
     },
@@ -224,6 +224,8 @@ function addBlock(headerCid, level = 0) {
       level
     )
     bodyEdge(headerId, bodyId)
+    if (level >= uiLevelLimit.value)
+      return headerId
     result.Payload.Accept.forEach(function(accept) {
       const blockId = addBlock(accept, level + 1)
       acceptEdge(headerId, blockId)
@@ -320,6 +322,7 @@ const KEY_BLOCKFROST_TOKEN = "blockfrostToken"
 const KEY_IPFS_GATEWAY = "ipfsGateway"
 const KEY_IPLD_EXPLORER = "ipldExplorer"
 const KEY_CARDANO_EXPLORER = "cardanoExplorer"
+const KEY_LEVEL_LIMIT = "levelLimit"
 
 function setupPersistence(key, element, defaultValue, followup) {
   const value = localStorage.getItem(key)
@@ -351,6 +354,7 @@ export async function initialize() {
   setupPersistence(KEY_IPFS_GATEWAY, uiIpfsGateway, "https://ipfs.io/", reset)
   setupPersistence(KEY_IPLD_EXPLORER, uiIpldExplorer, "https://explore.ipld.io/#/explore/")
   setupPersistence(KEY_CARDANO_EXPLORER, uiCardanoExplorer, "https://cardanoscan.io/")
+  setupPersistence(KEY_LEVEL_LIMIT, uiLevelLimit, 100)
 
   drawBlocks()
 
