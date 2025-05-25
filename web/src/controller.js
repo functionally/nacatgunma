@@ -50,7 +50,13 @@ async function fetchScriptUtxos(followup) {
   xhttp.send()
 }
 
+const ipldCache = {}
+
 async function fetchIpldCbor(cid, followup) {
+  if (cid in ipldCache) {
+    followup(ipldCache[cid])
+    return
+  }
   if (uiIpfsGateway.value == null || uiIpfsGateway.value =="") {
     alert("An IPFS gateway URL is required.")
     return
@@ -64,9 +70,11 @@ async function fetchIpldCbor(cid, followup) {
         const response = this.response
         if (contentType == "application/vnd.ipld.dag-json") {
           const res = JSON.parse(textDecoder.decode(response))
+          ipldCache[cid] = res
           followup(res)
         } else if (contentType == "application/vnd.ipld.dag-cbor") {
           const res = DagCbor.decode(new Uint8Array(response))
+          ipldCache[cid] = res
           followup(res)
         } else {
           reportError("Failed to decode block header (Content-type = " + contentType + ").")
@@ -106,7 +114,7 @@ function createHTMLTitle(html) {
   return element
 }
 
-function utxoNode(utxo, level = 0) {
+function utxoNode(utxo, level = 1) {
   const utxoId = utxo.tx_hash + "#" + utxo.tx_index 
   if (data.nodes.getIds().filter(id => id == utxoId).length > 0)
     return utxoId
@@ -121,7 +129,7 @@ function utxoNode(utxo, level = 0) {
   return utxoId
 }
 
-function headerNode(headerId, tooltip, level = 0) {
+function headerNode(headerId, tooltip, level = 1) {
   if (data.nodes.getIds().filter(id => id == headerId).length > 0)
     return headerId
   data.nodes.add({
@@ -135,7 +143,7 @@ function headerNode(headerId, tooltip, level = 0) {
   return headerId
 }
 
-function bodyNode(bodyCid, tooltip, level = 0) {
+function bodyNode(bodyCid, tooltip, level = 1) {
   const bodyId = extractCid(bodyCid)
   if (bodyId == null)
     return null
@@ -208,7 +216,7 @@ function bodyEdge(headerId, bodyId) {
   return edgeId
 }
 
-function addBlock(headerCid, level = 0) {
+function addBlock(headerCid, level = 1) {
   const headerId = extractCid(headerCid)
   if (headerId == null)
     return null
@@ -268,12 +276,14 @@ async function fetchTips() {
 }
 
 
-export const data = {
+export let network = null
+
+const data = {
   nodes: new DataSet(),
   edges: new DataSet(),
 }
 
-export function drawBlocks() {
+function drawBlocks() {
   const options = {
     layout: {
       hierarchical: {
@@ -296,7 +306,7 @@ export function drawBlocks() {
     },
     interaction: { hover: true },
   }
-  const network = new Network(uiCanvas, data, options)
+  network = new Network(uiCanvas, data, options)
   network.on("click", function (params) {
     if (params.nodes.length > 0) {
       const nodeId = params.nodes[0]
@@ -339,13 +349,13 @@ function setupPersistence(key, element, defaultValue, followup) {
 }
 
 function reset() {
-  data.nodes =new DataSet()
-  data.edges =new DataSet()
-console.log("REFRESH")
+  data.nodes.clear()
+  data.edges.clear()
+  network.redraw()
   fetchTips()
 }
 
-export function updateLimit() {
+function updateLimit() {
   uiLevelLimitLabel.innerText = "Maximum depth = " + uiLevelLimit.value
 }
 
