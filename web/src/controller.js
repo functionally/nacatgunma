@@ -305,7 +305,7 @@ export function drawBlocks() {
         window.open(ensureTrailingSlash(uiIpldExplorer.value) + nodeId, "nacatgunma")
       } catch (err) {
         if (nodeId.includes("#"))
-          window.open(ensureTrailingSlash(uiCardanoExplorer.value) + "transaction/" + nodeId.split('#')[0], "nacatgunma")
+          window.open(ensureTrailingSlash(uiCardanoExplorer.value) + nodeId.split('#')[0], "nacatgunma")
       }
     }
   })
@@ -344,6 +344,9 @@ function reset() {
   fetchTips()
 }
 
+export function updateLimit() {
+  uiLevelLimitLabel.innerText = "Maximum depth = " + uiLevelLimit.value
+}
 
 export async function initialize() {
 
@@ -354,7 +357,10 @@ export async function initialize() {
   setupPersistence(KEY_IPFS_GATEWAY, uiIpfsGateway, "https://ipfs.io/", reset)
   setupPersistence(KEY_IPLD_EXPLORER, uiIpldExplorer, "https://explore.ipld.io/#/explore/")
   setupPersistence(KEY_CARDANO_EXPLORER, uiCardanoExplorer, "https://cardanoscan.io/")
-  setupPersistence(KEY_LEVEL_LIMIT, uiLevelLimit, 100)
+  setupPersistence(KEY_LEVEL_LIMIT, uiLevelLimit, 100, reset)
+
+  uiLevelLimit.oninput = updateLimit
+  updateLimit()
 
   drawBlocks()
 

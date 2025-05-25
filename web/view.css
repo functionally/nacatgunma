@@ -27,6 +27,7 @@ h1 a {
 }
 
 .control {
+  width: 23vw;
   display: block;
   background-color: gainsboro;
   padding: 10px;
@@ -39,7 +40,7 @@ h1 a {
 }
 
 .control input {
-  width: 22vw;
+  width: 100%;
   font-family: monospace;
   font-size: smaller;
 }
