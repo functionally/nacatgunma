@@ -3,7 +3,7 @@
 [This folder](./) contains scripts and artifacts from operating the Nacatgunma chain with Cardano mainnet as the Layer 1.
 
 
-Use the [Nacatgunma Explorer](https://ipfs.io/ipfs/bafybeighyzhjjjnh7rcdz25xuok2wcmr2rnffwv2rqyr5ff3vc7bwqta4a) to see the the latest tip on Cardano mainnet.
+Use the [Nacatgunma Explorer](https://ipfs.io/ipfs/bafybeieuxid7jfvcqs2kv74t5fcwgdw26ja4cexe6hwpkuhbrcudaj5nfm) to see the the latest tip on Cardano mainnet.
 
 
 ## Artifacts

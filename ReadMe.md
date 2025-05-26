@@ -35,7 +35,7 @@ The combination of signed RDF graphs + DAG tips + subjective tip choice constitu
 ## Nacatgunma operating on Cardano
 
 - [Genesis block and other artifacts](onchain/ReadMe.md)
-- [Nacatgunma Explorer](https://ipfs.io/ipfs/bafybeighyzhjjjnh7rcdz25xuok2wcmr2rnffwv2rqyr5ff3vc7bwqta4a) web application (source available at [web/](web/ReadMe.md)).
+- [Nacatgunma Explorer](https://ipfs.io/ipfs/bafybeieuxid7jfvcqs2kv74t5fcwgdw26ja4cexe6hwpkuhbrcudaj5nfm) web application (source available at [web/](web/ReadMe.md)).
 
 
 ## CLI examples

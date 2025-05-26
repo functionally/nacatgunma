@@ -243,7 +243,7 @@ function addBlock(headerCid, level = 1) {
     })
     result.Payload.Reject.forEach(function(reject) {
       const blockId = addBlock(reject, level + 1)
-      reject(headerId, blockId)
+      rejectEdge(headerId, blockId)
     })
   })
   return headerId
@@ -293,6 +293,7 @@ function drawBlocks() {
       hierarchical: {
         direction: "RL",
         sortMethod: "directed",
+	shakeTowards: "roots",
       },
       improvedLayout: false,
     },
