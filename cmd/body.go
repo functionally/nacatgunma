@@ -72,7 +72,7 @@ func bodyRdfCmd() *cli.Command {
 
 	return &cli.Command{
 		Name:  "rdf",
-		Usage: "Build a block of RDF N-quads.",
+		Usage: "Build a body of RDF N-quads.",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:        "rdf-file",

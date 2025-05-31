@@ -17,8 +17,72 @@ func IpfsCmds() *cli.Command {
 		Name:  "ipfs",
 		Usage: "Interact with IPFS",
 		Subcommands: []*cli.Command{
+			ipfsChainCmd(),
 			ipfsFetchCmd(),
 			ipfsStoreCmd(),
+		},
+	}
+}
+
+func ipfsChainCmd() *cli.Command {
+
+	var headerDir string
+	var bodyDir string
+	var tipCid string
+	var ipfsApi string
+	var force bool
+	var progress bool
+
+	return &cli.Command{
+		Name:  "chain",
+		Usage: "Fetch the block chain from IPFS.",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:        "ipfs-api",
+				Value:       "localhost:5001",
+				Usage:       "Endpoint for the IPFS API",
+				Destination: &ipfsApi,
+			},
+			&cli.StringFlag{
+				Name:        "tip-cid",
+				Required:    true,
+				Usage:       "The CID for the block header of the tip of the chain",
+				Destination: &tipCid,
+			},
+			&cli.StringFlag{
+				Name:        "header-dir",
+				Required:    true,
+				Usage:       "Output folder for the block headers",
+				Destination: &headerDir,
+			},
+			&cli.StringFlag{
+				Name:        "body-dir",
+				Required:    false,
+				Usage:       "Output folder for the block bodies",
+				Destination: &bodyDir,
+			},
+			&cli.BoolFlag{
+				Name:        "force",
+				Value:       false,
+				Usage:       "Fetch blocks that already exist in output folders",
+				Destination: &force,
+			},
+			&cli.BoolFlag{
+				Name:        "progress",
+				Value:       false,
+				Usage:       "Report progress",
+				Destination: &progress,
+			},
+		},
+		Action: func(ctx *cli.Context) error {
+			sh := shell.NewShell(ipfsApi)
+			var bodyDirPtr *string
+			if ctx.IsSet("body-dir") {
+				bodyDirPtr = &bodyDir
+			} else {
+				bodyDirPtr = nil
+			}
+			return ipfs.FetchChain(sh, tipCid, headerDir, bodyDirPtr, force, progress)
 		},
 	}
 }
