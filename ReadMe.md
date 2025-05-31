@@ -252,6 +252,26 @@ nacatgunma ipfs fetch \
 ```
 
 
+### Fetch the whole block chain from IPFS
+
+```bash
+nacatgunma ipfs chain \
+  --tip-cid bafyreidyikafj5fablrtd526tjlsnxgk6nw3wr4mrsronbo5wceihes6b4 \
+  --header-dir onchain/headers \
+  --body-dir onchain/bodies \
+  --progress 
+```
+
+```console
+2025/05/31 09:04:44 Fetched and verified block header: bafyreidyikafj5fablrtd526tjlsnxgk6nw3wr4mrsronbo5wceihes6b4                   
+2025/05/31 09:04:44 Block body previously fetched: bafybeieuxid7jfvcqs2kv74t5fcwgdw26ja4cexe6hwpkuhbrcudaj5nfm                       
+2025/05/31 09:04:44 Fetched and verified block header: bafyreiarhfqkfmkku2hkk5dfzdxmborrhfqjs264r3f3gnweqoldh7lsxa                   
+2025/05/31 09:04:44 Block body previously fetched: bafybeif7ztnhq65lumvvtr4ekcwd2ifwgm3awq4zfr3srh462rwyinlb4y                       
+2025/05/31 09:04:44 Fetched and verified block header: bafyreiampkqrvb7xkgfnvs5ca6y4oashcyevrezl4xnboige7wymflpcc4                   
+. . .
+```console
+
+
 ### Fetch the tip from Cardano
 
 ```bash

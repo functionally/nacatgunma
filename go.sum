@@ -1,6 +1,8 @@
 filippo.io/edwards25519 v1.1.0 h1:FNf4tywRC1HmFuKW5xopWpigGjJKiJSV0Cqo0cJWDaA=
 filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/IBM/fp-go v1.0.152 h1:OhRB7PAIzgNjCqVjq6PE41VJb3dYEfuRInIUFAHahY4=
+github.com/IBM/fp-go v1.0.152/go.mod h1:jgx1QhmnKj93JMeZQEL3HDXoibDqGPIx+yIg2hBbvhw=
 github.com/IBM/mathlib v0.0.3-0.20231011094432-44ee0eb539da h1:qqGozq4tF6EOVnWoTgBoJGudRKKZXSAYnEtDggzTnsw=
 github.com/IBM/mathlib v0.0.3-0.20231011094432-44ee0eb539da/go.mod h1:Tco9QzE3fQzjMS7nPbHDeFfydAzctStf1Pa8hsh6Hjs=
 github.com/aead/siphash v1.0.1/go.mod h1:Nywa3cDsYNNK3gaciGTWPwHt0wlpNV15vwmswBAUSII=
