@@ -93,6 +93,9 @@ func (ledger *Ledger) colorRejected() map[cid.Cid]bool {
 	colors := make(map[cid.Cid]bool)
 	for _, header := range ledger.Headers {
 		for _, rejectCid := range header.Payload.Reject {
+			if rejectCid == ledger.Tip {
+				continue
+			}
 			colors[rejectCid] = true
 		}
 	}
@@ -102,6 +105,9 @@ func (ledger *Ledger) colorRejected() map[cid.Cid]bool {
 func (ledger *Ledger) colorAdjacentRejected(colors map[cid.Cid]bool) bool {
 	found := false
 	for headerCid, header := range ledger.Headers {
+		if headerCid == ledger.Tip {
+			continue
+		}
 		all := len(header.Payload.Accept) > 0
 		for _, acceptCid := range header.Payload.Accept {
 			all = all && colors[acceptCid]
