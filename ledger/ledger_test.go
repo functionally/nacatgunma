@@ -1,7 +1,6 @@
 package ledger
 
 import (
-	"log"
 	"testing"
 
 	"github.com/functionally/nacatgunma/header"
@@ -152,7 +151,7 @@ func TestPrune(t *testing.T) {
 			Headers: hs,
 		}
 		rejects := le.Prune()
-		expected := []cid.Cid{c1, c2}
+		expected := []cid.Cid{c0, c1, c2}
 		if !assertEqual(rejects, expected) {
 			t.Error("Incorrect pruning")
 		}
@@ -169,7 +168,7 @@ func TestPrune(t *testing.T) {
 			Headers: hs,
 		}
 		rejects := le.Prune()
-		expected := []cid.Cid{c2}
+		expected := []cid.Cid{c0, c1, c2}
 		if !assertEqual(rejects, expected) {
 			t.Error("Incorrect pruning")
 		}
@@ -273,8 +272,7 @@ func TestPrune(t *testing.T) {
 			Headers: hs,
 		}
 		rejects := le.Prune()
-		log.Println(rejects)
-		expected := []cid.Cid{c2, c6, c7, c8}
+		expected := []cid.Cid{c8}
 		if !assertEqual(rejects, expected) {
 			t.Error("Incorrect pruning")
 		}
@@ -299,8 +297,7 @@ func TestPrune(t *testing.T) {
 			Headers: hs,
 		}
 		rejects := le.Prune()
-		log.Println(rejects)
-		expected := []cid.Cid{c2, c6, c7, c8, c9, c10, c11, c12, c13}
+		expected := []cid.Cid{c8, c9, c10, c11, c12}
 		if !assertEqual(rejects, expected) {
 			t.Error("Incorrect pruning")
 		}

@@ -81,12 +81,71 @@ func (ledger *Ledger) Prune() []cid.Cid {
 }
 
 func (ledger *Ledger) Prunable() map[cid.Cid]bool {
-	colors := ledger.colorRejected()
-	found := true
-	for found {
-		found = ledger.colorAdjacentRejected(colors)
+
+	visible := make(map[cid.Cid]bool)
+	visible[ledger.Tip] = true
+
+	type path struct {
+		Block    cid.Cid
+		Visited  []cid.Cid
+		Rejected []cid.Cid
 	}
-	return colors
+
+	paths := []path{path{
+		Block:    ledger.Tip,
+		Visited:  []cid.Cid{ledger.Tip},
+		Rejected: []cid.Cid{},
+	}}
+
+	for len(paths) > 0 {
+
+		currentPath := paths[len(paths)-1]
+		paths = paths[:len(paths)-1]
+
+		currentBlock := currentPath.Block
+		currentHeader := ledger.Headers[currentBlock]
+
+		skip := false
+		for _, reject := range currentPath.Rejected {
+			if currentBlock == reject {
+				skip = true
+				break
+			}
+		}
+		if skip {
+			continue
+		}
+
+		for _, accept := range currentHeader.Payload.Accept {
+			visited := append([]cid.Cid{}, currentPath.Visited...)
+			visited = append(visited, accept)
+			rejected := append([]cid.Cid{}, currentPath.Rejected...)
+			rejected = append(rejected, currentHeader.Payload.Reject...)
+			path := path{
+				Block:    accept,
+				Visited:  visited,
+				Rejected: rejected,
+			}
+			paths = append(paths, path)
+		}
+
+		if len(currentHeader.Payload.Accept) == 0 {
+			for _, accept := range currentPath.Visited {
+				visible[accept] = true
+			}
+		}
+
+	}
+
+	rejected := make(map[cid.Cid]bool)
+	for candidate := range ledger.Headers {
+		_, present := visible[candidate]
+		if !present {
+			rejected[candidate] = true
+		}
+	}
+	return rejected
+
 }
 
 func (ledger *Ledger) colorRejected() map[cid.Cid]bool {
