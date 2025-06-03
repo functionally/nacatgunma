@@ -117,10 +117,8 @@ func (ledger *Ledger) Prunable() map[cid.Cid]bool {
 		}
 
 		for _, accept := range currentHeader.Payload.Accept {
-			visited := append([]cid.Cid{}, currentPath.Visited...)
-			visited = append(visited, accept)
-			rejected := append([]cid.Cid{}, currentPath.Rejected...)
-			rejected = append(rejected, currentHeader.Payload.Reject...)
+			visited := append(append([]cid.Cid{}, currentPath.Visited...), accept)
+			rejected := append(append([]cid.Cid{}, currentPath.Rejected...), currentHeader.Payload.Reject...)
 			path := path{
 				Block:    accept,
 				Visited:  visited,
