@@ -19,6 +19,7 @@ func main() {
 			cmd.HeaderCmds(),
 			cmd.IpfsCmds(),
 			cmd.KeyCmds(),
+			cmd.LedgerCmds(),
 		}}
 	if appErr := app.Run(os.Args); appErr != nil {
 		fmt.Fprintf(os.Stderr, "\nError: %v\n", appErr)

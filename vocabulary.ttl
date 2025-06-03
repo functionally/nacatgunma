@@ -1,0 +1,47 @@
+@prefix :         <urn:uuid:e7c8a7a8-eecb-4474-af36-a0ca474a2af5> .
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+
+:Header a rdfs:Class ;
+    rdfs:label "Header" ;
+    rdfs:comment "A signed header containing a payload and its provenance." .
+
+:Payload a rdfs:Class ;
+    rdfs:label "Payload" ;
+    rdfs:comment "A payload referencing a content body, with accept/reject relationships." .
+
+:payload a rdf:Property ;
+    rdfs:domain :Header ;
+    rdfs:range :Payload ;
+    rdfs:label "payload" ;
+    rdfs:comment "The payload associated with a header." .
+
+:signature a rdf:Property ;
+    rdfs:domain :Header ;
+    rdfs:range xsd:base64Binary ;
+    rdfs:label "signature" ;
+    rdfs:comment "A cryptographic signature over the payload." .
+
+:rejectedBy a rdf:Property ;
+    rdfs:domain :Header ;
+    rdfs:range rdfs:Resource ;
+    rdfs:label "rejected" ;
+    rdfs:comment "The specified tip either directly or indirectly rejects this block." .
+
+:accept a rdf:Property ;
+    rdfs:domain :Payload ;
+    rdfs:range rdfs:Resource ;
+    rdfs:label "accept" ;
+    rdfs:comment "CIDs of accepted references." .
+
+:reject a rdf:Property ;
+    rdfs:domain :Payload ;
+    rdfs:range rdfs:Resource ;
+    rdfs:label "reject" ;
+    rdfs:comment "CIDs of rejected references." .
+
+:body a rdf:Property ;
+    rdfs:domain :Payload ;
+    rdfs:range rdfs:Resource ;
+    rdfs:label "body" ;
+    rdfs:comment "CID of the body content." .
