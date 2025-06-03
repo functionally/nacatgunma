@@ -129,11 +129,7 @@ func (ledger *Ledger) Prunable() map[cid.Cid]bool {
 			paths = append(paths, path)
 		}
 
-		if len(currentHeader.Payload.Accept) == 0 {
-			for _, accept := range currentPath.Visited {
-				visible[accept] = true
-			}
-		}
+		visible[currentBlock] = true
 
 	}
 
@@ -146,38 +142,6 @@ func (ledger *Ledger) Prunable() map[cid.Cid]bool {
 	}
 	return rejected
 
-}
-
-func (ledger *Ledger) colorRejected() map[cid.Cid]bool {
-	colors := make(map[cid.Cid]bool)
-	for _, header := range ledger.Headers {
-		for _, rejectCid := range header.Payload.Reject {
-			if rejectCid == ledger.Tip {
-				continue
-			}
-			colors[rejectCid] = true
-		}
-	}
-	return colors
-}
-
-func (ledger *Ledger) colorAdjacentRejected(colors map[cid.Cid]bool) bool {
-	found := false
-	for headerCid, header := range ledger.Headers {
-		if headerCid == ledger.Tip {
-			continue
-		}
-		all := len(header.Payload.Accept) > 0
-		for _, acceptCid := range header.Payload.Accept {
-			all = all && colors[acceptCid]
-		}
-		if all {
-			_, ok := colors[headerCid]
-			found = found || !ok
-			colors[headerCid] = true
-		}
-	}
-	return found
 }
 
 func (ledger *Ledger) WriteLedgerTurtle(outputFile string, prunable map[cid.Cid]bool) error {
