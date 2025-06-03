@@ -82,29 +82,32 @@ func (ledger *Ledger) Prune() []cid.Cid {
 
 func (ledger *Ledger) Prunable() map[cid.Cid]bool {
 
+	// The tip is always visible because it has a length-zero path to itself.
 	visible := make(map[cid.Cid]bool)
 	visible[ledger.Tip] = true
 
+	// Track the end of the path and the blocks that have been declared rejected so far.
 	type path struct {
 		Block    cid.Cid
-		Visited  []cid.Cid
 		Rejected []cid.Cid
 	}
 
+	// Start from the tip.
 	paths := []path{path{
 		Block:    ledger.Tip,
-		Visited:  []cid.Cid{ledger.Tip},
-		Rejected: []cid.Cid{},
+		Rejected: ledger.Headers[ledger.Tip].Payload.Reject,
 	}}
 
+	// Depth-first enumeration of paths.
 	for len(paths) > 0 {
 
+		// Pop the top of the stack.
 		currentPath := paths[len(paths)-1]
-		paths = paths[:len(paths)-1]
-
 		currentBlock := currentPath.Block
 		currentHeader := ledger.Headers[currentBlock]
+		paths = paths[:len(paths)-1]
 
+		// Discard the path if any of the prior blocks have rejected its end.
 		skip := false
 		for _, reject := range currentPath.Rejected {
 			if currentBlock == reject {
@@ -116,21 +119,23 @@ func (ledger *Ledger) Prunable() map[cid.Cid]bool {
 			continue
 		}
 
-		for _, accept := range currentHeader.Payload.Accept {
-			visited := append(append([]cid.Cid{}, currentPath.Visited...), accept)
-			rejected := append(append([]cid.Cid{}, currentPath.Rejected...), currentHeader.Payload.Reject...)
-			path := path{
-				Block:    accept,
-				Visited:  visited,
-				Rejected: rejected,
-			}
-			paths = append(paths, path)
-		}
-
+		// Otherwise, the end is visible.
 		visible[currentBlock] = true
+
+		// Additional blocks may be rejected further down the path.
+		rejected := append(currentPath.Rejected, currentHeader.Payload.Reject...)
+
+		// Traverse one block deeper.
+		for _, accept := range currentHeader.Payload.Accept {
+			paths = append(paths, path{
+				Block:    accept,
+				Rejected: rejected,
+			})
+		}
 
 	}
 
+	// The rejected blocks are the ones that are not visible.
 	rejected := make(map[cid.Cid]bool)
 	for candidate := range ledger.Headers {
 		_, present := visible[candidate]
