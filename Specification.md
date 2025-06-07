@@ -101,10 +101,17 @@ A path is **non-rejected** if no intermediate block $A$ along the path has $\mat
 The following non-normative pseudo-code sketches the subjective DAG traversal and rejection.
 
 ```lean
+import Std.Data.HashMap
+import Std.Data.HashSet
+
+open Std
+
+abbrev Cid := String
+
 structure Block where
-  cid     : Cid          -- self
-  accept  : List Cid     -- parents
-  reject  : List Cid     -- rejected roots
+  cid     : Cid
+  accept  : List Cid
+  reject  : List Cid
 
 abbrev BlockMap := HashMap Cid Block
 abbrev RejectionContext := HashMap Cid (HashSet Cid)
@@ -124,20 +131,17 @@ partial def computeVisibleView
       | cid :: rest =>
         if visited.contains cid then
           visit rest visited visible context
-        else
-          match blocks.find? cid with
+        else 
+          match blocks.get? cid with
           | none => visit rest (visited.insert cid) visible context
           | some block =>
-            -- gather inherited rejections from children
             let inheritedRej :=
-              blocks.fold (init := ∅) fun acc child =>
+              blocks.fold (init := ∅) fun acc _ child =>
                 if child.accept.contains cid then
-                  acc ∪ context.findD child.cid ∅
+                  acc ∪ context.getD child.cid ∅
                 else acc
-
-            let fullRej := inheritedRej ∪ block.reject.toHashSet
+            let fullRej := inheritedRej ∪ HashSet.ofList block.reject
             let context' := context.insert cid fullRej
-
             if fullRej.contains cid then
               visit rest (visited.insert cid) visible context'
             else
@@ -145,8 +149,7 @@ partial def computeVisibleView
               let visible' := visible.insert cid
               let stack' := block.accept ++ rest
               visit stack' visited' visible' context'
-
-  visit trustedTips ∅ ∅ HashMap.empty
+  visit trustedTips ∅ ∅ (HashMap.emptyWithCapacity 10)
 ```
 
 
