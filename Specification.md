@@ -98,7 +98,7 @@ $$
 
 A path is **non-rejected** if no intermediate block $A$ along the path has $\mathsf{reject}(A) \ni B'$ for any $B'$ also on the path.
 
-The following non-normative pseudo-code sketches the subjective DAG traversal and rejection.
+The following non-normative pseudo-code sketches the subjective DAG traversal and rejection. See [Pruning.lean](Pruning.lean) for Lean4 code and examples of pruning rejected blocks.
 
 ```lean
 import Std.Data.HashMap
