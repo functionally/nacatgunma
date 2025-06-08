@@ -1,6 +1,7 @@
 package ledger
 
 import (
+	"log"
 	"testing"
 
 	"github.com/functionally/nacatgunma/header"
@@ -81,7 +82,7 @@ var c14, h14 = makeHeader([]cid.Cid{c13}, []cid.Cid{c9})
 
 func TestPrune(t *testing.T) {
 
-	t.Run("Genesis", func(t *testing.T) {
+	t.Run("Ex 0: Genesis", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		le := Ledger{
@@ -94,7 +95,7 @@ func TestPrune(t *testing.T) {
 		}
 	})
 
-	t.Run("Two blocks linear", func(t *testing.T) {
+	t.Run("Ex 1: Two blocks linear", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -108,7 +109,7 @@ func TestPrune(t *testing.T) {
 		}
 	})
 
-	t.Run("Three blocks linear", func(t *testing.T) {
+	t.Run("Ex 2: Three blocks linear", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -123,7 +124,7 @@ func TestPrune(t *testing.T) {
 		}
 	})
 
-	t.Run("Reject genesis", func(t *testing.T) {
+	t.Run("Ex 3: Reject genesis", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -140,7 +141,7 @@ func TestPrune(t *testing.T) {
 		}
 	})
 
-	t.Run("Reject first", func(t *testing.T) {
+	t.Run("Ex 4: Reject first", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -157,7 +158,7 @@ func TestPrune(t *testing.T) {
 		}
 	})
 
-	t.Run("Reject second", func(t *testing.T) {
+	t.Run("Ex 5: Reject second", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -174,7 +175,7 @@ func TestPrune(t *testing.T) {
 		}
 	})
 
-	t.Run("Parallel path", func(t *testing.T) {
+	t.Run("Ex 6: Parallel path", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -191,7 +192,7 @@ func TestPrune(t *testing.T) {
 		}
 	})
 
-	t.Run("Reject whole parallel path", func(t *testing.T) {
+	t.Run("Ex 7: Reject whole parallel path", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -210,7 +211,7 @@ func TestPrune(t *testing.T) {
 		}
 	})
 
-	t.Run("Complex 1", func(t *testing.T) {
+	t.Run("Ex 8: Complex 1", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -232,7 +233,7 @@ func TestPrune(t *testing.T) {
 		}
 	})
 
-	t.Run("Complex 2", func(t *testing.T) {
+	t.Run("Ex 9: Complex 2", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -254,7 +255,8 @@ func TestPrune(t *testing.T) {
 			t.Error("Incorrect pruning")
 		}
 	})
-	t.Run("Complex 3", func(t *testing.T) {
+
+	t.Run("Ex 10: Complex 3", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -277,7 +279,7 @@ func TestPrune(t *testing.T) {
 		}
 	})
 
-	t.Run("Complex 4", func(t *testing.T) {
+	t.Run("Ex 11: Complex 4", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -302,4 +304,107 @@ func TestPrune(t *testing.T) {
 		}
 	})
 
+	t.Run("Ex 12", func(t *testing.T) {
+		cA, hA := makeHeader([]cid.Cid{}, []cid.Cid{})
+		cB, hB := makeHeader([]cid.Cid{cA}, []cid.Cid{})
+		cC, hC := makeHeader([]cid.Cid{cA}, []cid.Cid{})
+		cD, hD := makeHeader([]cid.Cid{cC}, []cid.Cid{})
+		cE, hE := makeHeader([]cid.Cid{cD}, []cid.Cid{})
+		cF, hF := makeHeader([]cid.Cid{cB, cE}, []cid.Cid{cD})
+		cG, hG := makeHeader([]cid.Cid{cF}, []cid.Cid{})
+		hs := empty()
+		hs[cA] = *hA
+		hs[cB] = *hB
+		hs[cC] = *hC
+		hs[cE] = *hD
+		hs[cE] = *hE
+		hs[cF] = *hF
+		hs[cG] = *hG
+		le := Ledger{
+			Tip:     cG,
+			Headers: hs,
+		}
+		rejects := le.Prune()
+		log.Printf("A = %v\n", cA)
+		log.Printf("B = %v\n", cB)
+		log.Printf("C = %v\n", cC)
+		log.Printf("D = %v\n", cD)
+		log.Printf("E = %v\n", cE)
+		log.Printf("F = %v\n", cF)
+		log.Printf("G = %v\n", cG)
+		log.Println(rejects)
+		log.Println()
+		expected := []cid.Cid{cC, cD}
+		if !assertEqual(rejects, expected) {
+			t.Error("Incorrect pruning")
+		}
+	})
+
+	t.Run("Ex 13", func(t *testing.T) {
+		cA, hA := makeHeader([]cid.Cid{}, []cid.Cid{})
+		cC, hC := makeHeader([]cid.Cid{cA}, []cid.Cid{})
+		cB, hB := makeHeader([]cid.Cid{cA}, []cid.Cid{cC})
+		cD, hD := makeHeader([]cid.Cid{cC}, []cid.Cid{})
+		cE, hE := makeHeader([]cid.Cid{cD}, []cid.Cid{})
+		cF, hF := makeHeader([]cid.Cid{cB, cE}, []cid.Cid{})
+		cG, hG := makeHeader([]cid.Cid{cF}, []cid.Cid{})
+		hs := empty()
+		hs[cA] = *hA
+		hs[cB] = *hB
+		hs[cC] = *hC
+		hs[cE] = *hD
+		hs[cE] = *hE
+		hs[cF] = *hF
+		hs[cG] = *hG
+		le := Ledger{
+			Tip:     cG,
+			Headers: hs,
+		}
+		rejects := le.Prune()
+		log.Printf("A = %v\n", cA)
+		log.Printf("B = %v\n", cB)
+		log.Printf("C = %v\n", cC)
+		log.Printf("D = %v\n", cD)
+		log.Printf("E = %v\n", cE)
+		log.Printf("F = %v\n", cF)
+		log.Printf("G = %v\n", cG)
+		log.Println(rejects)
+		log.Println()
+		if len(rejects) > 0 {
+			t.Error("Incorrect pruning")
+		}
+	})
+
+	t.Run("Ex 14", func(t *testing.T) {
+		cR, hR := makeHeader([]cid.Cid{}, []cid.Cid{})
+		cB, hB := makeHeader([]cid.Cid{cR}, []cid.Cid{cR})
+		cA, hA := makeHeader([]cid.Cid{cB}, []cid.Cid{})
+		cY, hY := makeHeader([]cid.Cid{cB}, []cid.Cid{})
+		cX, hX := makeHeader([]cid.Cid{cA}, []cid.Cid{})
+		cT, hT := makeHeader([]cid.Cid{cA, cX}, []cid.Cid{})
+		hs := empty()
+		hs[cR] = *hR
+		hs[cB] = *hB
+		hs[cA] = *hA
+		hs[cY] = *hY
+		hs[cX] = *hX
+		hs[cT] = *hT
+		le := Ledger{
+			Tip:     cT,
+			Headers: hs,
+		}
+		rejects := le.Prune()
+		log.Printf("R = %v\n", cR)
+		log.Printf("B = %v\n", cB)
+		log.Printf("A = %v\n", cA)
+		log.Printf("Y = %v\n", cY)
+		log.Printf("X = %v\n", cX)
+		log.Printf("T = %v\n", cT)
+		log.Println(rejects)
+		log.Println()
+		expected := []cid.Cid{cR}
+		if !assertEqual(rejects, expected) {
+			t.Error("Incorrect pruning")
+		}
+	})
 }

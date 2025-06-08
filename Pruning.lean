@@ -233,5 +233,4 @@ def ex14 : BlockMap :=
       ⟨ "X" , ["Y"] , ∅ ⟩,
       ⟨ "T" , ["A", "X"] , ∅ ⟩,
     ]
-
 #eval (computeVisibleView ex14 ["T"]).toList = ["X", "B", "T", "A", "Y"]
