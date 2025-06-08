@@ -55,7 +55,7 @@ For convenience only, the transaction metadata may provide a reference to this r
 
 For easiest on-chain discoverability of the CID of the tip, include the datum as *inline datum* in the transaction. This makes it possible to retrieve that CID and the datum directly from a UTxO query on the node; otherwise, one must use a chain follower or chain database to discover the details of the tip or find the latest tips.
 
-See [onchain/mainnet/](onchain/mainnet/) and [onchain/testnet/](onchain/testnet/) for model transactions.
+See [onchain/tx.sh](onchain/tx.sh) for a template for creating and submitting transactions.
 
 1. [c4fb42bdca24628f96d3268c71253ebb9565453bf29de9b4ace70521a9bb9959](https://preprod.cardanoscan.io/transaction/c4fb42bdca24628f96d3268c71253ebb9565453bf29de9b4ace70521a9bb9959?tab=utxo)
 2. [ae1fa36e2f82b9d031169b8aaa2f139dcd62d93820122c3ff37cd0ee4386ef64](https://preprod.cardanoscan.io/transaction/ae1fa36e2f82b9d031169b8aaa2f139dcd62d93820122c3ff37cd0ee4386ef64?tab=utxo)
