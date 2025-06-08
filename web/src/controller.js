@@ -370,7 +370,7 @@ export async function initialize() {
   setupPersistence(KEY_FILTER_TOKEN, uiFilterToken, "30135f08305143796de4276083cc54e47fbcafb176df6b58ab3094464e6163617467756e6d61", reset)
   setupPersistence(KEY_BLOCKFROST_URL, uiBlockfrostUrl, "https://cardano-mainnet.blockfrost.io/api/v0/", reset)
   setupPersistence(KEY_BLOCKFROST_TOKEN, uiBlockfrostToken, null, reset)
-  setupPersistence(KEY_IPFS_GATEWAY, uiIpfsGateway, "https://ipfs.io/", reset)
+  setupPersistence(KEY_IPFS_GATEWAY, uiIpfsGateway, "http://nacatgunma.functionally.io:8080/ipfs/", reset)
   setupPersistence(KEY_IPLD_EXPLORER, uiIpldExplorer, "https://explore.ipld.io/#/explore/")
   setupPersistence(KEY_CARDANO_EXPLORER, uiCardanoExplorer, "https://cardanoscan.io/transaction/")
   setupPersistence(KEY_LEVEL_LIMIT, uiLevelLimit, 100, reset)
@@ -378,6 +378,7 @@ export async function initialize() {
   uiLevelLimit.oninput = updateLimit
   updateLimit()
 
+  uiFit.onclick = function() {network.fit()}
   uiRefresh.onclick = reset
 
   drawBlocks()
