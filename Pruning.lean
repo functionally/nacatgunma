@@ -104,9 +104,9 @@ private def ex5 : BlockMap :=
       ⟨ "B0" , ∅ , ∅ ⟩ ,
       ⟨ "B1" , ["B0"] , ∅ ⟩ ,
       ⟨ "B2" , ["B1"] , ∅ ⟩ ,
-      ⟨ "B5" , ["B2"] , ["B1"] ⟩ ,
+      ⟨ "B5" , ["B2"] , ["B2"] ⟩ ,
     ]
-#eval (computeVisibleView ex5 ["B5"]).toList = ["B2", "B5"]
+#eval (computeVisibleView ex5 ["B5"]).toList = ["B5"]
 
 private def ex6 : BlockMap :=
   makeBlockMap

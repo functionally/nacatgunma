@@ -1,7 +1,6 @@
 package ledger
 
 import (
-	"log"
 	"testing"
 
 	"github.com/functionally/nacatgunma/header"
@@ -82,20 +81,21 @@ var c14, h14 = makeHeader([]cid.Cid{c13}, []cid.Cid{c9})
 
 func TestPrune(t *testing.T) {
 
-	t.Run("Ex 0: Genesis", func(t *testing.T) {
+	t.Run("Ex0 Genesis", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		le := Ledger{
 			Tip:     c0,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		if len(rejects) != 0 {
+		visible := le.Visible()
+		expected := []cid.Cid{c0}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})
 
-	t.Run("Ex 1: Two blocks linear", func(t *testing.T) {
+	t.Run("Ex1 Two blocks linear", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -103,13 +103,14 @@ func TestPrune(t *testing.T) {
 			Tip:     c1,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		if len(rejects) != 0 {
+		visible := le.Visible()
+		expected := []cid.Cid{c0, c1}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})
 
-	t.Run("Ex 2: Three blocks linear", func(t *testing.T) {
+	t.Run("Ex2 Three blocks linear", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -118,13 +119,14 @@ func TestPrune(t *testing.T) {
 			Tip:     c2,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		if len(rejects) != 0 {
+		visible := le.Visible()
+		expected := []cid.Cid{c0, c1, c2}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})
 
-	t.Run("Ex 3: Reject genesis", func(t *testing.T) {
+	t.Run("Ex3 Reject genesis", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -134,14 +136,14 @@ func TestPrune(t *testing.T) {
 			Tip:     c3,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		expected := []cid.Cid{c0}
-		if !assertEqual(rejects, expected) {
+		visible := le.Visible()
+		expected := []cid.Cid{c1, c2, c3}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})
 
-	t.Run("Ex 4: Reject first", func(t *testing.T) {
+	t.Run("Ex4 Reject first", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -151,14 +153,14 @@ func TestPrune(t *testing.T) {
 			Tip:     c4,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		expected := []cid.Cid{c0, c1}
-		if !assertEqual(rejects, expected) {
+		visible := le.Visible()
+		expected := []cid.Cid{c2, c4}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})
 
-	t.Run("Ex 5: Reject second", func(t *testing.T) {
+	t.Run("Ex5 Reject second", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -168,14 +170,14 @@ func TestPrune(t *testing.T) {
 			Tip:     c5,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		expected := []cid.Cid{c0, c1, c2}
-		if !assertEqual(rejects, expected) {
+		visible := le.Visible()
+		expected := []cid.Cid{c5}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})
 
-	t.Run("Ex 6: Parallel path", func(t *testing.T) {
+	t.Run("Ex6 Parallel path", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -186,13 +188,14 @@ func TestPrune(t *testing.T) {
 			Tip:     c7,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		if len(rejects) != 0 {
+		visible := le.Visible()
+		expected := []cid.Cid{c0, c1, c2, c6, c7}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})
 
-	t.Run("Ex 7: Reject whole parallel path", func(t *testing.T) {
+	t.Run("Ex7 Reject whole parallel path", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -204,9 +207,9 @@ func TestPrune(t *testing.T) {
 			Tip:     c8,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		expected := []cid.Cid{c6}
-		if !assertEqual(rejects, expected) {
+		visible := le.Visible()
+		expected := []cid.Cid{c0, c1, c2, c7, c8}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})
@@ -226,14 +229,14 @@ func TestPrune(t *testing.T) {
 			Tip:     c11,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		expected := []cid.Cid{c6}
-		if !assertEqual(rejects, expected) {
+		visible := le.Visible()
+		expected := []cid.Cid{c0, c1, c2, c7, c8, c9, c10, c11}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})
 
-	t.Run("Ex 9: Complex 2", func(t *testing.T) {
+	t.Run("Ex9 Complex 2", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -249,14 +252,14 @@ func TestPrune(t *testing.T) {
 			Tip:     c12,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		expected := []cid.Cid{c2, c6}
-		if !assertEqual(rejects, expected) {
+		visible := le.Visible()
+		expected := []cid.Cid{c0, c1, c7, c8, c9, c10, c11, c12}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})
 
-	t.Run("Ex 10: Complex 3", func(t *testing.T) {
+	t.Run("Ex10 Complex 3", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -273,13 +276,14 @@ func TestPrune(t *testing.T) {
 			Tip:     c13,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		if len(rejects) > 0 {
+		visible := le.Visible()
+		expected := []cid.Cid{c0, c1, c2, c6, c7, c8, c9, c10, c11, c12, c13}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})
 
-	t.Run("Ex 11: Complex 4", func(t *testing.T) {
+	t.Run("Ex11 Complex 4", func(t *testing.T) {
 		hs := empty()
 		hs[c0] = *h0
 		hs[c1] = *h1
@@ -297,9 +301,9 @@ func TestPrune(t *testing.T) {
 			Tip:     c14,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		expected := []cid.Cid{c9}
-		if !assertEqual(rejects, expected) {
+		visible := le.Visible()
+		expected := []cid.Cid{c0, c1, c2, c6, c7, c8, c10, c11, c12, c13, c14}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})
@@ -324,18 +328,9 @@ func TestPrune(t *testing.T) {
 			Tip:     cG,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		log.Printf("A = %v\n", cA)
-		log.Printf("B = %v\n", cB)
-		log.Printf("C = %v\n", cC)
-		log.Printf("D = %v\n", cD)
-		log.Printf("E = %v\n", cE)
-		log.Printf("F = %v\n", cF)
-		log.Printf("G = %v\n", cG)
-		log.Println(rejects)
-		log.Println()
-		expected := []cid.Cid{cC, cD}
-		if !assertEqual(rejects, expected) {
+		visible := le.Visible()
+		expected := []cid.Cid{cA, cB, cE, cF, cG}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})
@@ -360,17 +355,9 @@ func TestPrune(t *testing.T) {
 			Tip:     cG,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		log.Printf("A = %v\n", cA)
-		log.Printf("B = %v\n", cB)
-		log.Printf("C = %v\n", cC)
-		log.Printf("D = %v\n", cD)
-		log.Printf("E = %v\n", cE)
-		log.Printf("F = %v\n", cF)
-		log.Printf("G = %v\n", cG)
-		log.Println(rejects)
-		log.Println()
-		if len(rejects) > 0 {
+		visible := le.Visible()
+		expected := []cid.Cid{cA, cB, cC, cD, cE, cF, cG}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})
@@ -393,9 +380,9 @@ func TestPrune(t *testing.T) {
 			Tip:     cT,
 			Headers: hs,
 		}
-		rejects := le.Prune()
-		expected := []cid.Cid{cR}
-		if !assertEqual(rejects, expected) {
+		visible := le.Visible()
+		expected := []cid.Cid{cA, cB, cT, cX, cY}
+		if !assertEqual(visible, expected) {
 			t.Error("Incorrect pruning")
 		}
 	})

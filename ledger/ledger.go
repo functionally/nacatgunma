@@ -80,7 +80,15 @@ func (ledger *Ledger) Prune() []cid.Cid {
 	return rejected
 }
 
-func (ledger *Ledger) Prunable() map[cid.Cid]bool {
+func (ledger *Ledger) Visible() []cid.Cid {
+	var visible []cid.Cid
+	for c := range ledger.Reachable() {
+		visible = append(visible, c)
+	}
+	return visible
+}
+
+func (ledger *Ledger) Reachable() map[cid.Cid]bool {
 
 	// The tip is always visible because it has a length-zero path to itself.
 	visible := make(map[cid.Cid]bool)
@@ -135,6 +143,11 @@ func (ledger *Ledger) Prunable() map[cid.Cid]bool {
 
 	}
 
+	return visible
+}
+
+func (ledger *Ledger) Prunable() map[cid.Cid]bool {
+	visible := ledger.Reachable()
 	// The rejected blocks are the ones that are not visible.
 	rejected := make(map[cid.Cid]bool)
 	for candidate := range ledger.Headers {
@@ -144,7 +157,6 @@ func (ledger *Ledger) Prunable() map[cid.Cid]bool {
 		}
 	}
 	return rejected
-
 }
 
 func (ledger *Ledger) WriteLedgerTurtle(outputFile string, prunable map[cid.Cid]bool) error {
