@@ -293,6 +293,46 @@ nacatgunma cardano tips \
 ```
 
 
+### Export the ledger
+
+```console
+$ nacatgunma ledger export --help
+NAME:
+   nacatgunma ledger export - Export headers from the ledger.
+
+USAGE:
+   nacatgunma ledger export [command options]
+
+OPTIONS:
+   --tip-cid value      The CID for the block header of the tip of the chain
+   --header-dir value   Input folder for the block headers
+   --turtle-file value  Output file for the block headers in Turtle format
+   --json-file value    Output file for the block headers in JSON format
+   --help, -h           show help
+```
+
+
+### Prune rejected blocks from the ledger
+
+```console
+$ nacatgunma ledger prune --help
+
+NAME:
+   nacatgunma ledger prune - Prune rejected blocks from the ledger.
+
+USAGE:
+   nacatgunma ledger prune [command options]
+
+OPTIONS:
+   --tip-cid value        The CID for the block header of the tip of the chain
+   --header-dir value     Input folder for the block headers
+   --accepted-file value  Output file for the list of accepted block headers
+   --rejected-file value  Output file for the list of rejected block headers
+   --body-file value      Output file for the list of accepted block bodies
+   --help, -h             show help
+```
+
+
 ### Generate Cardano datum, redeemer, and metadata
 
 ```bash
