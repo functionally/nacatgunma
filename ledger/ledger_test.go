@@ -316,7 +316,7 @@ func TestPrune(t *testing.T) {
 		hs[cA] = *hA
 		hs[cB] = *hB
 		hs[cC] = *hC
-		hs[cE] = *hD
+		hs[cD] = *hD
 		hs[cE] = *hE
 		hs[cF] = *hF
 		hs[cG] = *hG
@@ -352,7 +352,7 @@ func TestPrune(t *testing.T) {
 		hs[cA] = *hA
 		hs[cB] = *hB
 		hs[cC] = *hC
-		hs[cE] = *hD
+		hs[cD] = *hD
 		hs[cE] = *hE
 		hs[cF] = *hF
 		hs[cG] = *hG
