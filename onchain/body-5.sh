@@ -15,13 +15,12 @@ HEADER_CBOR="$HEADER.cbor"
 
 ACCEPT_CID="$(cat header-4.cid)"
 
-BODY_CID=bafybeieuxid7jfvcqs2kv74t5fcwgdw26ja4cexe6hwpkuhbrcudaj5nfm
+BODY_CID=bafybeidodijlnfovfs5ru2tqm4hqmo6vwn4rs2eodocwryp525uhqfa7eq
 
 HEADER_CID=$(
 "$EXE" header build \
   --key-file "$PRIV_KEY" \
   --accept "$ACCEPT_CID" \
-  --reject bafyreiampkqrvb7xkgfnvs5ca6y4oashcyevrezl4xnboige7wymflpcc4 \
   --body  "$BODY_CID" \
   --comment "$COMMENT" \
   --schema "https://schema.org/WebApplication" \
