@@ -380,7 +380,7 @@ func TestPrune(t *testing.T) {
 		cB, hB := makeHeader([]cid.Cid{cR}, []cid.Cid{cR})
 		cA, hA := makeHeader([]cid.Cid{cB}, []cid.Cid{})
 		cY, hY := makeHeader([]cid.Cid{cB}, []cid.Cid{})
-		cX, hX := makeHeader([]cid.Cid{cA}, []cid.Cid{})
+		cX, hX := makeHeader([]cid.Cid{cY}, []cid.Cid{})
 		cT, hT := makeHeader([]cid.Cid{cA, cX}, []cid.Cid{})
 		hs := empty()
 		hs[cR] = *hR
@@ -394,14 +394,6 @@ func TestPrune(t *testing.T) {
 			Headers: hs,
 		}
 		rejects := le.Prune()
-		log.Printf("R = %v\n", cR)
-		log.Printf("B = %v\n", cB)
-		log.Printf("A = %v\n", cA)
-		log.Printf("Y = %v\n", cY)
-		log.Printf("X = %v\n", cX)
-		log.Printf("T = %v\n", cT)
-		log.Println(rejects)
-		log.Println()
 		expected := []cid.Cid{cR}
 		if !assertEqual(rejects, expected) {
 			t.Error("Incorrect pruning")
