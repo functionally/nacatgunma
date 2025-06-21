@@ -13,47 +13,58 @@ import (
 	"github.com/trustbloc/did-go/method/key"
 )
 
-type Key struct {
-	Private    ed25519.PrivateKey
-	Public     ed25519.PublicKey
-	Did        string
-	Resolution did.DocResolution
+type Key interface {
+	PrivateBytes() []byte
+	PublicBytes() []byte
+	Did() string
+	Resolution() did.DocResolution
+	Sign(message []byte, context string) ([]byte, error)
+	WritePrivateKey(filename string) error
 }
 
-func GenerateKey() (*Key, error) {
-	_, pri, err := ed25519.GenerateKey(nil)
-	if err != nil {
-		return nil, err
-	}
-	return makeKey(pri)
+type KeyType int
+
+const (
+	Ed25519 KeyType = iota
+)
+
+type KeyEd25519 struct {
+	Private ed25519.PrivateKey
 }
 
-func makeKey(pri []byte) (*Key, error) {
-	pub := pri[32:]
-	prefixedKey := append([]byte{0xED, 0x01}, pub...)
+func (k *KeyEd25519) PrivateBytes() []byte {
+	return k.Private
+}
+
+func (k *KeyEd25519) PublicBytes() []byte {
+	return k.Private[32:]
+}
+
+func (k *KeyEd25519) Did() string {
+	prefixedKey := append([]byte{0xED, 0x01}, k.PublicBytes()...)
 	str, err := multibase.Encode(multibase.Base58BTC, prefixedKey)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	did := "did:key:" + str
-	resolution, err := key.New().Read(did)
+	return "did:key:" + str
+}
+
+func (k *KeyEd25519) Resolution() did.DocResolution {
+	resolution, err := ResolveDid(k.Did())
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	return &Key{
-		Private:    pri,
-		Public:     pub,
-		Did:        did,
-		Resolution: *resolution,
-	}, nil
+	return *resolution
 }
 
-func (key *Key) Sign(message []byte) ([]byte, error) {
-	return key.Private.Sign(nil, message, nil)
+func (k *KeyEd25519) Sign(message []byte, context string) ([]byte, error) {
+	return k.Private.Sign(nil, message, &ed25519.Options{
+		Context: context,
+	})
 }
 
-func (key *Key) WritePrivateKey(filename string) error {
-	bytes, err := x509.MarshalPKCS8PrivateKey(key.Private)
+func (k *KeyEd25519) WritePrivateKey(filename string) error {
+	bytes, err := x509.MarshalPKCS8PrivateKey(k.Private)
 	if err != nil {
 		return err
 	}
@@ -72,7 +83,25 @@ func (key *Key) WritePrivateKey(filename string) error {
 	return handle.Close()
 }
 
-func ReadPrivateKey(filename string) (*Key, error) {
+func GenerateKey(keyType KeyType) (Key, error) {
+	switch keyType {
+	case Ed25519:
+		{
+			_, pri, err := ed25519.GenerateKey(nil)
+			if err != nil {
+				return nil, err
+			}
+			return &KeyEd25519{
+				Private: pri,
+			}, nil
+
+		}
+	default:
+		return nil, fmt.Errorf("invalid key type: %v", keyType)
+	}
+}
+
+func ReadPrivateKey(filename string) (Key, error) {
 	pemBytes, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -89,7 +118,9 @@ func ReadPrivateKey(filename string) (*Key, error) {
 	if err != nil {
 		return nil, err
 	}
-	return makeKey(pri.(ed25519.PrivateKey))
+	return &KeyEd25519{
+		Private: pri.(ed25519.PrivateKey),
+	}, nil
 }
 
 func PublicKeyFromDid(did string) ([]byte, error) {

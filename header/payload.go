@@ -2,7 +2,6 @@ package header
 
 import (
 	"bytes"
-	"crypto/ed25519"
 
 	"github.com/ipfs/go-cid"
 	"github.com/ipld/go-ipld-prime"
@@ -52,20 +51,19 @@ func (payload *Payload) Marshal() ([]byte, error) {
 	return buffer.Bytes(), err
 }
 
-func (payload *Payload) Sign(key *key.Key) (*Header, error) {
+func (payload *Payload) Sign(key key.Key) (*Header, error) {
 	bytes, err := payload.Marshal()
 	if err != nil {
 		return nil, err
 	}
-	s, err := key.Private.Sign(nil, bytes, &ed25519.Options{
-		Context: key.Did,
-	})
+	did := key.Did()
+	s, err := key.Sign(bytes, did)
 	if err != nil {
 		return nil, err
 	}
 	return &Header{
 		Payload:   *payload,
-		Issuer:    key.Did,
+		Issuer:    did,
 		Signature: s,
 	}, nil
 }

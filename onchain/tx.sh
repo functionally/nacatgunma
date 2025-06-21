@@ -13,13 +13,11 @@ cardano-cli conway query utxo --address $(cat controllers.$NETWORK.address)
 
 cardano-cli conway query utxo --address $(cat script-0.$NETWORK.address)
 
-cardano-cli conway query utxo --address $(cat script-0.$NETWORK.address)
-
 cardano-cli conway transaction build \
   --tx-in-collateral 8042f83c9c52ce173750f79d0163b70ad127ee6c225cd2a57b1249689c1cf164#0 \
-  --tx-in 8407a3e624750ed035525e2e37c286eb33c9dd9ca95b14a504be481cc91f26c4#1 \
+  --tx-in 374f1b03cd416aafd29ca33fe97734df603607fcc63bfe7177ad92e2952bd6eb#1 \
     --tx-in-script-file controllers.script \
-  --tx-in 8407a3e624750ed035525e2e37c286eb33c9dd9ca95b14a504be481cc91f26c4#0 \
+  --tx-in 374f1b03cd416aafd29ca33fe97734df603607fcc63bfe7177ad92e2952bd6eb#0 \
     --tx-in-script-file script-0.plutus \
     --tx-in-inline-datum-present \
     --tx-in-redeemer-file script-0.redeemer \
@@ -42,4 +40,6 @@ cardano-cli conway transaction submit \
 cardano-cli conway transaction txid \
   --tx-file tx-$SUFFIX.signed
 
-cardano-cli conway query utxo --address $(cat script-0.$NETWORK.address)
+cardano-cli conway query utxo \
+  --address $(cat script-0.$NETWORK.address)
+

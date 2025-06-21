@@ -36,7 +36,7 @@ func keyGenerateCmd() *cli.Command {
 			},
 		},
 		Action: func(*cli.Context) error {
-			key, err := key.GenerateKey()
+			key, err := key.GenerateKey(key.Ed25519)
 			if err != nil {
 				return err
 			}
