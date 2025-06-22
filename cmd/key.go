@@ -14,10 +14,38 @@ func KeyCmds() *cli.Command {
 		Name:  "key",
 		Usage: "Key management subcommands",
 		Subcommands: []*cli.Command{
+			keyDidCmd(),
 			keyGenerateCmd(),
 			keyResolveCmd(),
 		},
 	}
+}
+
+func keyDidCmd() *cli.Command {
+
+	var keyFile string
+
+	return &cli.Command{
+		Name:  "did",
+		Usage: "Print the DID of a cryptographic key.",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:        "key-file",
+				Required:    true,
+				Usage:       "Input file for private key",
+				Destination: &keyFile,
+			},
+		},
+		Action: func(*cli.Context) error {
+			k, err := key.ReadPrivateKey(keyFile)
+			if err != nil {
+				return err
+			}
+			fmt.Println(key.Did(k))
+			return nil
+		},
+	}
+
 }
 
 func keyGenerateCmd() *cli.Command {

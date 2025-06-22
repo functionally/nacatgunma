@@ -29,7 +29,7 @@ func generateBls12381() (*KeyBls12381, error) {
 }
 
 func fromBytesBls12381(priBytes []byte) (*KeyBls12381, error) {
-	if len(priBytes) != 10 {
+	if len(priBytes) != 32 {
 		return nil, fmt.Errorf("incorrect length of BLS-12381 private key: %v", len(priBytes))
 	}
 	return makeBls12381(bls12381.NewFr().FromBytes(priBytes))
