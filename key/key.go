@@ -61,7 +61,7 @@ func GenerateKey(keyType KeyType) (Key, error) {
 	}
 }
 
-func Verify(did string, sig []byte, message []byte, context string) error {
+func Verify(did string, sigBytes []byte, message []byte, context string) error {
 	keyType, pubBytes, err := PublicKeyFromDid(did)
 	if err != nil {
 		return err
@@ -69,7 +69,19 @@ func Verify(did string, sig []byte, message []byte, context string) error {
 	switch keyType {
 	case Ed25519:
 		{
-			verifyEd25519(pubBytes, sig, message, context)
+			verifyEd25519(pubBytes, sigBytes, message, context)
+		}
+	case Bls12381:
+		{
+			pub, err := pointG1FromBytesBls12381(pubBytes)
+			if err != nil {
+				return err
+			}
+			sig, err := pointG2FromBytesBls12381(sigBytes)
+			if err != nil {
+				return err
+			}
+			verifyBls12381(pub, sig, message, context)
 		}
 	}
 	return fmt.Errorf("invalid key type: %v", keyType)
