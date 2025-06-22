@@ -23,7 +23,8 @@ type Key interface {
 type KeyType int
 
 const (
-	Ed25519 KeyType = iota
+	UnknownKeyType KeyType = iota
+	Ed25519
 	Bls12381
 )
 
@@ -58,6 +59,20 @@ func GenerateKey(keyType KeyType) (Key, error) {
 	default:
 		return nil, fmt.Errorf("invalid key type: %v", keyType)
 	}
+}
+
+func Verify(did string, sig []byte, message []byte, context string) error {
+	keyType, pubBytes, err := PublicKeyFromDid(did)
+	if err != nil {
+		return err
+	}
+	switch keyType {
+	case Ed25519:
+		{
+			verifyEd25519(pubBytes, sig, message, context)
+		}
+	}
+	return fmt.Errorf("invalid key type: %v", keyType)
 }
 
 func ReadPrivateKey(filename string) (Key, error) {
@@ -128,23 +143,26 @@ func ResolveDid(did string) (*did.DocResolution, error) {
 	return key.New().Read(did)
 }
 
-func PublicKeyFromDid(did string) ([]byte, error) {
+func PublicKeyFromDid(did string) (KeyType, []byte, error) {
 	if !strings.HasPrefix(did, "did:key:") {
-		return nil, fmt.Errorf("invalid DID format")
+		return UnknownKeyType, nil, fmt.Errorf("invalid DID format")
 	}
 	str := strings.TrimPrefix(did, "did:key:")
 	_, data, err := multibase.Decode(str)
 	if err != nil {
-		return nil, fmt.Errorf("multibase decode error: %v", err)
+		return UnknownKeyType, nil, fmt.Errorf("multibase decode error: %v", err)
 	}
 	if len(data) < 2 {
-		return nil, fmt.Errorf("invalid multicodec: %x", data)
+		return UnknownKeyType, nil, fmt.Errorf("invalid multicodec: %x", data)
 	}
 	firstTwoMatch := func(x []byte, y []byte) bool {
 		return x[0] == y[0] && x[1] == y[1]
 	}
-	if firstTwoMatch(data, prefixBytes(Ed25519)) || firstTwoMatch(data, prefixBytes(Bls12381)) {
-		return data[2:], nil
+	if firstTwoMatch(data, prefixBytes(Ed25519)) {
+		return Ed25519, data[2:], nil
 	}
-	return nil, fmt.Errorf("unsupported multicodec key: %x", data[:2])
+	if firstTwoMatch(data, prefixBytes(Bls12381)) {
+		return Bls12381, data[2:], nil
+	}
+	return UnknownKeyType, nil, fmt.Errorf("unsupported multicodec key: %x", data[:2])
 }

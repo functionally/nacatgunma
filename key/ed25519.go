@@ -47,3 +47,9 @@ func (k *KeyEd25519) Sign(message []byte, context string) ([]byte, error) {
 		Context: context,
 	})
 }
+
+func verifyEd25519(pub ed25519.PublicKey, sig []byte, message []byte, context string) error {
+	return ed25519.VerifyWithOptions(pub, message, sig, &ed25519.Options{
+		Context: context,
+	})
+}
