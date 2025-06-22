@@ -51,13 +51,13 @@ func (payload *Payload) Marshal() ([]byte, error) {
 	return buffer.Bytes(), err
 }
 
-func (payload *Payload) Sign(key key.Key) (*Header, error) {
+func (payload *Payload) Sign(k key.Key) (*Header, error) {
 	bytes, err := payload.Marshal()
 	if err != nil {
 		return nil, err
 	}
-	did := key.Did()
-	s, err := key.Sign(bytes, did)
+	did := key.Did(k)
+	s, err := k.Sign(bytes, did)
 	if err != nil {
 		return nil, err
 	}
