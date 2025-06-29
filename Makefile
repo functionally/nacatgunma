@@ -1,7 +1,7 @@
 #!/usr/bin/env nix-shell
 #!nix-shell -i "make -f" -p go golint
 
-PKGS=./cardano ./cmd ./header ./ipfs ./key ./ledger ./rdf
+PKGS=./cardano ./cmd ./header ./ipfs ./key ./ledger ./rdf ./tgdh
 
 SRCS=$(find $(PKGS) -type f -name \*.go)
 
