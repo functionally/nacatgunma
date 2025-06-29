@@ -55,10 +55,36 @@ func TestRoot(t *testing.T) {
 		func(flags0 [7]bool, flags1 [7]bool) bool {
 			node0 := compute(flags0)
 			node1 := compute(flags1)
-			return *node0.Public == *node1.Public && *node0.Private == *node1.Private
+			return node0.Public == node1.Public && *node0.Private == *node1.Private
 		},
 		gen.ArrayOfN(7, gen.Bool(), reflect.TypeOf(true)),
 		gen.ArrayOfN(7, gen.Bool(), reflect.TypeOf(true)),
 	))
 	properties.TestingRun(t)
+}
+
+func TestFindPath(t *testing.T) {
+	A, _ := GenerateLeaf()
+	B, _ := GenerateLeaf()
+	AB, _ := Join(A, Strip(B))
+	path, err := FindPath(A, DeepStrip(AB))
+	if err != nil {
+		t.Error(err)
+	}
+	if len(path) != 2 || path[0].Public != A.Public || path[1].Public != AB.Public {
+		t.Error("incorrect path")
+	}
+}
+
+func TestRecompute(t *testing.T) {
+	A, _ := GenerateLeaf()
+	B, _ := GenerateLeaf()
+	AB, _ := Join(A, Strip(B))
+	root, err := Recompute(A, DeepStrip(AB))
+	if err != nil {
+		t.Error(err)
+	}
+	if *AB.Private != *root.Private {
+		t.Error("incorrect recomputed private key")
+	}
 }
