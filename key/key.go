@@ -29,6 +29,7 @@ const (
 )
 
 func prefixBytes(keyType KeyType) []byte {
+	// See <https://github.com/multiformats/multicodec/blob/master/table.csv>.
 	switch keyType {
 	case Ed25519:
 		return []byte{0xED, 0x01}
@@ -69,19 +70,19 @@ func Verify(did string, sigBytes []byte, message []byte, context string) error {
 	switch keyType {
 	case Ed25519:
 		{
-			verifyEd25519(pubBytes, sigBytes, message, context)
+			return verifyEd25519(pubBytes, sigBytes, message, context)
 		}
 	case Bls12381:
 		{
-			pub, err := pointG1FromBytesBls12381(pubBytes)
+			pub, err := pointG2FromBytesBls12381(pubBytes)
 			if err != nil {
 				return err
 			}
-			sig, err := pointG2FromBytesBls12381(sigBytes)
+			sig, err := pointG1FromBytesBls12381(sigBytes)
 			if err != nil {
 				return err
 			}
-			verifyBls12381(pub, sig, message, context)
+			return verifyBls12381(pub, sig, message, context)
 		}
 	}
 	return fmt.Errorf("invalid key type: %v", keyType)
