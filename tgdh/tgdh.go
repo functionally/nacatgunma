@@ -118,7 +118,9 @@ func Recompute(leaf *Node, root *Node) (*Node, error) {
 	}
 	root1 := leaf
 	for _, node := range path[1:] {
-		// FIXME: Handle nil children.
+		if node.Left == nil || node.Right == nil {
+			return nil, fmt.Errorf("ill-formed tree")
+		}
 		if node.Left.Public == root1.Public {
 			root1, err = Join(node.Right, root1)
 			if err != nil {
