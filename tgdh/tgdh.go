@@ -2,11 +2,13 @@ package tgdh
 
 import (
 	"crypto/rand"
-	"crypto/sha512"
+	"crypto/sha256"
 	"fmt"
+	"io"
 
 	bls12381 "github.com/kilic/bls12-381"
 	"github.com/multiformats/go-multibase"
+	"golang.org/x/crypto/hkdf"
 )
 
 type Node struct {
@@ -64,6 +66,16 @@ func Leaf(pri *bls12381.Fr) *Node {
 	return makeNode(pri, nil, nil)
 }
 
+func hashToFr(secret *bls12381.PointG1, salt []byte, info []byte) (*bls12381.Fr, error) {
+	hashReader := hkdf.New(sha256.New, bls12381.NewG1().ToCompressed(secret), salt, info)
+	hashBytes := make([]byte, 32)
+	_, err := io.ReadFull(hashReader, hashBytes)
+	if err != nil {
+		return nil, err
+	}
+	return bls12381.NewFr().FromBytes(hashBytes), nil
+}
+
 func Join(left *Node, right *Node) (*Node, error) {
 	g1 := bls12381.NewG1()
 	prod := g1.New()
@@ -74,8 +86,10 @@ func Join(left *Node, right *Node) (*Node, error) {
 	} else {
 		return nil, fmt.Errorf("one child must have a private key")
 	}
-	prodHash := sha512.Sum512(g1.ToCompressed(prod))
-	pri := bls12381.NewFr().FromBytes(prodHash[:])
+	pri, err := hashToFr(prod, nil, []byte("nacatgunma tgdh"))
+	if err != nil {
+		return nil, err
+	}
 	return makeNode(pri, left, right), nil
 }
 
@@ -111,7 +125,7 @@ func FindPath(leaf *Node, root *Node) ([]*Node, error) {
 	return visitPath(leaf, root, root)
 }
 
-func Recompute(leaf *Node, root *Node) (*Node, error) {
+func DerivePrivates(leaf *Node, root *Node) (*Node, error) {
 	path, err := FindPath(leaf, root)
 	if err != nil {
 		return nil, err

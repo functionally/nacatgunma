@@ -80,7 +80,7 @@ func TestRecompute(t *testing.T) {
 	A, _ := GenerateLeaf()
 	B, _ := GenerateLeaf()
 	AB, _ := Join(A, Strip(B))
-	root, err := Recompute(A, DeepStrip(AB))
+	root, err := DerivePrivates(A, DeepStrip(AB))
 	if err != nil {
 		t.Error(err)
 	}
