@@ -150,3 +150,12 @@ func DerivePrivates(leaf *Node, root *Node) (*Node, error) {
 	}
 	return root1, nil
 }
+
+func DeriveSeed(dst []byte, root *Node, salt []byte, info []byte) error {
+	if root.Private == nil {
+		return fmt.Errorf("missing private key")
+	}
+	hashReader := hkdf.New(sha256.New, root.Private.ToBytes(), salt, info)
+	_, err := io.ReadFull(hashReader, dst)
+	return err
+}
