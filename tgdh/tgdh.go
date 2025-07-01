@@ -18,7 +18,7 @@ type Node struct {
 	Right   *Node
 }
 
-func Strip(node *Node) *Node {
+func (node *Node) Strip() *Node {
 	return &Node{
 		Private: nil,
 		Public:  node.Public,
@@ -27,14 +27,14 @@ func Strip(node *Node) *Node {
 	}
 }
 
-func DeepStrip(node *Node) *Node {
+func (node *Node) DeepStrip() *Node {
 	var left *Node
 	if node.Left != nil {
-		left = DeepStrip(node.Left)
+		left = node.Left.DeepStrip()
 	}
 	var right *Node
 	if node.Right != nil {
-		right = DeepStrip(node.Right)
+		right = node.Right.DeepStrip()
 	}
 	return &Node{
 		Private: nil,
@@ -86,14 +86,14 @@ func Join(left *Node, right *Node) (*Node, error) {
 	} else {
 		return nil, fmt.Errorf("one child must have a private key")
 	}
-	pri, err := hashToFr(prod, nil, []byte("nacatgunma tgdh"))
+	pri, err := hashToFr(prod, nil, []byte("nacatgunma-tgdh-bls12381g1"))
 	if err != nil {
 		return nil, err
 	}
 	return makeNode(pri, left, right), nil
 }
 
-func Did(node *Node) string {
+func (node *Node) Did() string {
 	pub := bls12381.NewG1().ToCompressed(&node.Public)
 	prefixedKey := append([]byte{0xEA, 0x01}, pub...)
 	str, err := multibase.Encode(multibase.Base58BTC, prefixedKey)
@@ -151,7 +151,7 @@ func DerivePrivates(leaf *Node, root *Node) (*Node, error) {
 	return root1, nil
 }
 
-func DeriveSeed(dst []byte, root *Node, salt []byte, info []byte) error {
+func (root *Node) DeriveSeed(dst []byte, salt []byte, info []byte) error {
 	if root.Private == nil {
 		return fmt.Errorf("missing private key")
 	}

@@ -29,13 +29,13 @@ func TestRoot(t *testing.T) {
 	}
 	join := func(flag bool, left *Node, right *Node) *Node {
 		if flag {
-			node, err := Join(left, Strip(right))
+			node, err := Join(left, right.Strip())
 			if err != nil {
 				t.Error(err)
 			}
 			return node
 		} else {
-			node, err := Join(Strip(left), right)
+			node, err := Join(left.Strip(), right)
 			if err != nil {
 				t.Error(err)
 			}
@@ -66,8 +66,8 @@ func TestRoot(t *testing.T) {
 func TestFindPath(t *testing.T) {
 	A, _ := GenerateLeaf()
 	B, _ := GenerateLeaf()
-	AB, _ := Join(A, Strip(B))
-	path, err := FindPath(A, DeepStrip(AB))
+	AB, _ := Join(A, B.Strip())
+	path, err := FindPath(A, AB.DeepStrip())
 	if err != nil {
 		t.Error(err)
 	}
@@ -79,8 +79,8 @@ func TestFindPath(t *testing.T) {
 func TestRecompute(t *testing.T) {
 	A, _ := GenerateLeaf()
 	B, _ := GenerateLeaf()
-	AB, _ := Join(A, Strip(B))
-	root, err := DerivePrivates(A, DeepStrip(AB))
+	AB, _ := Join(A, B.Strip())
+	root, err := DerivePrivates(A, AB.DeepStrip())
 	if err != nil {
 		t.Error(err)
 	}
