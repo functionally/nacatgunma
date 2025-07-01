@@ -1,7 +1,6 @@
 package tgdh
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -102,12 +101,11 @@ func TestJson(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Printf("%v\n", string(j))
 	root1, err := UnmarshalJSON(j)
 	if err != nil {
 		t.Error(err)
 	}
-	if root1 != root {
+	if !Equal(root1, root) {
 		t.Error("deserialization does not match")
 	}
 }

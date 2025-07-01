@@ -169,7 +169,10 @@ type jsonNode struct {
 	Right   *jsonNode `json:"right,omitempty"`
 }
 
-func (root *Node) MarshalJSON() ([]byte, error) {
+func (root *Node) toJsonNode() (*jsonNode, error) {
+	if root == nil {
+		return nil, nil
+	}
 	var privHex string
 	if root.Private != nil {
 		privBytes := root.Private.ToBytes()
@@ -178,26 +181,33 @@ func (root *Node) MarshalJSON() ([]byte, error) {
 	g1 := bls12381.NewG1()
 	pubBytes := g1.ToCompressed(&root.Public)
 	pubHex := hex.EncodeToString(pubBytes)
-	left, err := root.Left.MarshalJSON()
+	left, err := root.Left.toJsonNode()
 	if err != nil {
 		return nil, err
 	}
-	right, err := root.Right.MarshalJSON()
+	right, err := root.Right.toJsonNode()
 	if err != nil {
 		return nil, err
 	}
-	return json.Marshal(&jsonNode{
+	return &jsonNode{
 		Private: privHex,
 		Public:  pubHex,
-		Left:    &left,
-		Right:   &right,
-	})
+		Left:    left,
+		Right:   right,
+	}, nil
 }
 
-func UnmarshalJSON(data []byte) (*Node, error) {
-	var j jsonNode
-	if err := json.Unmarshal(data, &j); err != nil {
+func (root *Node) MarshalJSON() ([]byte, error) {
+	j, err := root.toJsonNode()
+	if err != nil {
 		return nil, err
+	}
+	return json.Marshal(j)
+}
+
+func (j *jsonNode) fromJsonNode() (*Node, error) {
+	if j == nil {
+		return nil, nil
 	}
 	var fr bls12381.Fr
 	var pri *bls12381.Fr
@@ -219,10 +229,46 @@ func UnmarshalJSON(data []byte) (*Node, error) {
 	if err != nil {
 		return nil, err
 	}
+	left, err := j.Left.fromJsonNode()
+	if err != nil {
+		return nil, err
+	}
+	right, err := j.Right.fromJsonNode()
+	if err != nil {
+		return nil, err
+	}
 	return &Node{
 		Private: pri,
 		Public:  *pub,
-		Left:    j.Left,
-		Right:   j.Right,
+		Left:    left,
+		Right:   right,
 	}, nil
+}
+
+func UnmarshalJSON(data []byte) (*Node, error) {
+	var j jsonNode
+	if err := json.Unmarshal(data, &j); err != nil {
+		return nil, err
+	}
+	return j.fromJsonNode()
+}
+
+func Equal(x *Node, y *Node) bool {
+	if x == nil && y == nil {
+		return true
+	}
+	if (x == nil) != (y == nil) {
+		return false
+	}
+	if (x.Private == nil) != (y.Private == nil) {
+		return false
+	}
+	if x.Private != nil && !x.Private.Equal(y.Private) {
+		return false
+	}
+	g1 := bls12381.NewG1()
+	if !g1.Equal(&x.Public, &y.Public) {
+		return false
+	}
+	return Equal(x.Left, y.Left) && Equal(x.Right, y.Right)
 }
