@@ -3,6 +3,8 @@ package tgdh
 import (
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -158,4 +160,69 @@ func (root *Node) DeriveSeed(dst []byte, salt []byte, info []byte) error {
 	hashReader := hkdf.New(sha256.New, root.Private.ToBytes(), salt, info)
 	_, err := io.ReadFull(hashReader, dst)
 	return err
+}
+
+type jsonNode struct {
+	Private string    `json:"private,omitempty"`
+	Public  string    `json:"public"`
+	Left    *jsonNode `json:"left,omitempty"`
+	Right   *jsonNode `json:"right,omitempty"`
+}
+
+func (root *Node) MarshalJSON() ([]byte, error) {
+	var privHex string
+	if root.Private != nil {
+		privBytes := root.Private.ToBytes()
+		privHex = hex.EncodeToString(privBytes[:])
+	}
+	g1 := bls12381.NewG1()
+	pubBytes := g1.ToCompressed(&root.Public)
+	pubHex := hex.EncodeToString(pubBytes)
+	left, err := root.Left.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	right, err := root.Right.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+	return json.Marshal(&jsonNode{
+		Private: privHex,
+		Public:  pubHex,
+		Left:    &left,
+		Right:   &right,
+	})
+}
+
+func UnmarshalJSON(data []byte) (*Node, error) {
+	var j jsonNode
+	if err := json.Unmarshal(data, &j); err != nil {
+		return nil, err
+	}
+	var fr bls12381.Fr
+	var pri *bls12381.Fr
+	if j.Private != "" {
+		privBytes, err := hex.DecodeString(j.Private)
+		if err != nil {
+			return nil, err
+		}
+		pri = fr.FromBytes(privBytes)
+	} else {
+		pri = nil
+	}
+	pubBytes, err := hex.DecodeString(j.Public)
+	if err != nil {
+		return nil, err
+	}
+	g1 := bls12381.NewG1()
+	pub, err := g1.FromCompressed(pubBytes)
+	if err != nil {
+		return nil, err
+	}
+	return &Node{
+		Private: pri,
+		Public:  *pub,
+		Left:    j.Left,
+		Right:   j.Right,
+	}, nil
 }

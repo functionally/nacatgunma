@@ -1,6 +1,7 @@
 package tgdh
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -86,5 +87,27 @@ func TestRecompute(t *testing.T) {
 	}
 	if *AB.Private != *root.Private {
 		t.Error("incorrect recomputed private key")
+	}
+}
+
+func TestJson(t *testing.T) {
+	A, _ := GenerateLeaf()
+	B, _ := GenerateLeaf()
+	AB, _ := Join(A, B.Strip())
+	root, err := DerivePrivates(A, AB.DeepStrip())
+	if err != nil {
+		t.Error(err)
+	}
+	j, err := root.MarshalJSON()
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Printf("%v\n", string(j))
+	root1, err := UnmarshalJSON(j)
+	if err != nil {
+		t.Error(err)
+	}
+	if root1 != root {
+		t.Error("deserialization does not match")
 	}
 }
