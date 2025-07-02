@@ -3,7 +3,7 @@
 
 PKGS=./cardano ./cmd ./header ./ipfs ./key ./ledger ./rdf ./tgdh
 
-SRCS=$(find $(PKGS) -type f -name \*.go)
+SRCS=$(shell find $(PKGS) -type f -name \*.go)
 
 nacatgunma: main.go $(SRCS)
 	GOPATH= go build -o nacatgunma $<

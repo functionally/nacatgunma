@@ -138,7 +138,7 @@ func DerivePrivates(leaf *Node, root *Node) (*Node, error) {
 			return nil, fmt.Errorf("ill-formed tree")
 		}
 		if node.Left.Public == root1.Public {
-			root1, err = Join(node.Right, root1)
+			root1, err = Join(root1, node.Right)
 			if err != nil {
 				return nil, err
 			}
