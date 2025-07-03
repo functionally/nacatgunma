@@ -5,9 +5,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
-	"github.com/lestrrat-go/jwx/v2/jwk"
 	"github.com/lestrrat-go/jwx/v3/jwa"
 	"github.com/lestrrat-go/jwx/v3/jwe"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 )
 
 func (root *Node) DeriveAesKey(salt []byte) ([]byte, error) {
@@ -41,7 +41,7 @@ func (root *Node) Encrypt(plainText []byte, contentType string) ([]byte, []byte,
 	if err != nil {
 		return nil, nil, err
 	}
-	jwkKey, err := jwk.FromRaw(aesKey)
+	jwkKey, err := jwk.Import(aesKey)
 	if err != nil {
 		return nil, nil, err
 	}
