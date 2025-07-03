@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/functionally/nacatgunma/tgdh"
+	"github.com/lestrrat-go/jwx/v3/jwe"
+	"github.com/lestrrat-go/jwx/v3/jwk"
 	"github.com/urfave/cli/v2"
 )
 
@@ -241,7 +243,8 @@ func tgdhEncryptCmd() *cli.Command {
 	var privateFile string
 	var plaintextFile string
 	var contentType string
-	var ciphertextFile string
+	var jweFile string
+	var jwkFile string
 
 	return &cli.Command{
 		Name:  "encrypt",
@@ -266,13 +269,19 @@ func tgdhEncryptCmd() *cli.Command {
 				Destination: &contentType,
 			},
 			&cli.StringFlag{
-				Name:        "ciphertext-file",
+				Name:        "jwe-file",
 				Required:    true,
-				Usage:       "Output file for the ciphertext",
-				Destination: &ciphertextFile,
+				Usage:       "Output JWE file for the ciphertext",
+				Destination: &jweFile,
+			},
+			&cli.StringFlag{
+				Name:        "jwk-file",
+				Required:    false,
+				Usage:       "Output JWK file for the ephemeral AES256 key",
+				Destination: &jwkFile,
 			},
 		},
-		Action: func(*cli.Context) error {
+		Action: func(ctx *cli.Context) error {
 			privateBytes, err := os.ReadFile(privateFile)
 			if err != nil {
 				return err
@@ -285,13 +294,19 @@ func tgdhEncryptCmd() *cli.Command {
 			if err != nil {
 				return err
 			}
-			ciphertext, err := private.Encrypt(plaintext, contentType)
+			jwkBytes, jweBytes, err := private.Encrypt(plaintext, contentType)
 			if err != nil {
 				return err
 			}
-			err = os.WriteFile(ciphertextFile, ciphertext, 0644)
+			err = os.WriteFile(jweFile, jweBytes, 0644)
 			if err != nil {
 				return err
+			}
+			if ctx.IsSet("jwk-file") {
+				err = os.WriteFile(jwkFile, jwkBytes, 0644)
+				if err != nil {
+					return err
+				}
 			}
 			return nil
 		},
@@ -302,7 +317,8 @@ func tgdhEncryptCmd() *cli.Command {
 func tgdhDecryptCmd() *cli.Command {
 
 	var privateFile string
-	var ciphertextFile string
+	var jwkFile string
+	var jweFile string
 	var plaintextFile string
 	var headersFile string
 
@@ -312,15 +328,21 @@ func tgdhDecryptCmd() *cli.Command {
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:        "private-file",
-				Required:    true,
+				Required:    false,
 				Usage:       "Input file of private TGDH key",
 				Destination: &privateFile,
 			},
 			&cli.StringFlag{
-				Name:        "ciphertext-file",
+				Name:        "jwk-file",
+				Required:    false,
+				Usage:       "Input JWK file of the ephemeral AES256 key",
+				Destination: &jwkFile,
+			},
+			&cli.StringFlag{
+				Name:        "jwe-file",
 				Required:    true,
-				Usage:       "Input file of the ciphertext",
-				Destination: &ciphertextFile,
+				Usage:       "Input JWE file of the ciphertext",
+				Destination: &jweFile,
 			},
 			&cli.StringFlag{
 				Name:        "plaintext-file",
@@ -335,22 +357,62 @@ func tgdhDecryptCmd() *cli.Command {
 				Destination: &headersFile,
 			},
 		},
+		Before: func(ctx *cli.Context) error {
+			hasPrivate := ctx.IsSet("private-file")
+			hasJwk := ctx.IsSet("jwk-file")
+
+			switch {
+			case hasPrivate && hasJwk:
+				return fmt.Errorf("only one of --private-file or --jwk-file may be specified")
+			case !hasPrivate && !hasJwk:
+				return fmt.Errorf("one of --private-file or --jwk-file must be specified")
+			default:
+				return nil
+			}
+		},
 		Action: func(ctx *cli.Context) error {
-			privateBytes, err := os.ReadFile(privateFile)
+			jweBytes, err := os.ReadFile(jweFile)
 			if err != nil {
 				return err
 			}
-			private, err := tgdh.UnmarshalJSON(privateBytes)
-			if err != nil {
-				return err
-			}
-			ciphertext, err := os.ReadFile(ciphertextFile)
-			if err != nil {
-				return err
-			}
-			headers, plaintext, err := private.Decrypt(ciphertext)
-			if err != nil {
-				return err
+			var headers jwe.Headers
+			var plaintext []byte
+			if ctx.IsSet("private-file") {
+				privateBytes, err := os.ReadFile(privateFile)
+				if err != nil {
+					return err
+				}
+				private, err := tgdh.UnmarshalJSON(privateBytes)
+				if err != nil {
+					return err
+				}
+				headers, plaintext, err = private.Decrypt(jweBytes)
+				if err != nil {
+					return err
+				}
+			} else if ctx.IsSet("jwk-file") {
+				keyset, err := jwk.ReadFile(jwkFile)
+				if err != nil {
+					return nil
+				}
+				if len(keyset.Keys()) == 0 {
+					return fmt.Errorf("JWK file has no keys")
+				}
+				key, ok := keyset.Key(0)
+				if !ok {
+					return fmt.Errorf("JWK file missing key")
+				}
+				var aesKey []byte
+				err = key.Get("k", &aesKey)
+				if err != nil {
+					return err
+				}
+				headers, plaintext, err = tgdh.Decrypt(aesKey, jweBytes)
+				if err != nil {
+					return err
+				}
+			} else {
+				return fmt.Errorf("exactly one of --private-file or --jwk-file must be specified")
 			}
 			err = os.WriteFile(plaintextFile, plaintext, 0644)
 			if err != nil {
