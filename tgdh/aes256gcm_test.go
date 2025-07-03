@@ -14,7 +14,7 @@ func TestEncrypt(t *testing.T) {
 	}
 	plainText := []byte("Nacatgunma TGDH encryption test")
 	contentType := "text/plain"
-	cipherText, err := root.Encrypt(plainText, contentType)
+	_, cipherText, err := root.Encrypt(plainText, contentType)
 	if err != nil {
 		t.Error(err)
 	}
@@ -46,7 +46,7 @@ func TestEncrypt(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if type1 != "nacatgunma-tgdh" {
+	if type1 != "nacatgunma-tgdh+salt" {
 		t.Error("type does not match")
 	}
 }
