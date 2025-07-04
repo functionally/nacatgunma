@@ -14,15 +14,15 @@ We define a reification function $`\mathsf{reify}(B)`$ that maps the signed grap
 
 For each triple $`t \in \mathsf{G}(B)`$, define the reified form:
 
-$$`
+$$
 \mathsf{reify}(B) = \{ (s, p, o, g\_B) \mid (s, p, o) \in \mathsf{G}(B) \}
-`$$
+$$
 
 where $`g\_B \in \mathcal{U}`$ is a unique graph name associated with the block $`B`$, such as:
 
-$$`
+$$
 g\_B := \texttt{did:} \mathsf{issuer}(B) \\# \mathsf{id}(B)
-`$$
+$$
 
 Alternatively, if using RDF-star or PROV-O, the reification can instead be:
 
@@ -40,18 +40,18 @@ Given a participant $`u`$, let $`\mathcal{V}_u`$ be the set of blocks **visible*
 
 Define the participant’s **assembled state graph** $`\mathsf{S}_u`$ as:
 
-$$`
+$$
 \mathsf{S}\_u := \bigcup\_{B \in \mathcal{V}\_u} \mathsf{reify}(B)
-`$$
+$$
 
 That is, the total RDF graph is the union of all reified block payloads visible under $`u`$'s trust and traversal policy.
 
 If RDF-star is used, this could equivalently be:
 
-$$`
+$$
 \mathsf{S}\_u := \bigcup\_{B \in \mathcal{V}\_u} \left\\{ \ll t \gg \ \mathsf{prov:wasAttributedTo} \ \mathsf{issuer}(B) \right\\}
 \quad \text{for each } t \in \mathsf{G}(B)
-`$$
+$$
 
 
 ## Conflict handling
