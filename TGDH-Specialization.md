@@ -16,7 +16,7 @@ The private key of a leaf is simply a randomly chosen member of the Fr group. Th
 
 These keys can be used to derive a symmetric key for AES256-GCM encryption, but a unique salt must be used each time in the symmetric-key derivation.
 
-The reference implementation resides in [tgdh/][./tgdh/].
+The reference implementation resides in [tgdh/](./tgdh/).
 
 ## Command-line tool
 
