@@ -91,7 +91,7 @@ func headerBuildCmd() *cli.Command {
 			},
 		},
 		Action: func(*cli.Context) error {
-			key, err := key.ReadPrivateKey(keyFile)
+			k, err := key.ReadPrivateKey(keyFile)
 			if err != nil {
 				return err
 			}
@@ -110,7 +110,7 @@ func headerBuildCmd() *cli.Command {
 				return err
 			}
 			payload.Reject = rejectCids
-			header, err := payload.Sign(key)
+			header, err := payload.Sign(k)
 			if err != nil {
 				return err
 			}

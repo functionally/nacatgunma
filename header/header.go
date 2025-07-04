@@ -2,7 +2,6 @@ package header
 
 import (
 	"bytes"
-	"crypto/ed25519"
 
 	"github.com/ipld/go-ipld-prime"
 	"github.com/ipld/go-ipld-prime/codec/dagcbor"
@@ -79,12 +78,6 @@ func (header *Header) Verify() (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	pub, err := key.PublicKeyFromDid(header.Issuer)
-	if err != nil {
-		return false, err
-	}
-	err = ed25519.VerifyWithOptions(pub, bytes, header.Signature, &ed25519.Options{
-		Context: header.Issuer,
-	})
+	err = key.Verify(header.Issuer, bytes, header.Signature, header.Issuer)
 	return err == nil, err
 }

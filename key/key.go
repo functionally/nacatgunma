@@ -13,66 +13,82 @@ import (
 	"github.com/trustbloc/did-go/method/key"
 )
 
-type Key struct {
-	Private    ed25519.PrivateKey
-	Public     ed25519.PublicKey
-	Did        string
-	Resolution did.DocResolution
+type Key interface {
+	keyType() KeyType
+	PrivateBytes() []byte
+	PublicBytes() []byte
+	Sign(message []byte, context string) ([]byte, error)
 }
 
-func GenerateKey() (*Key, error) {
-	_, pri, err := ed25519.GenerateKey(nil)
-	if err != nil {
-		return nil, err
+type KeyType int
+
+const (
+	UnknownKeyType KeyType = iota
+	Ed25519
+	Bls12381
+)
+
+func prefixBytes(keyType KeyType) []byte {
+	// See <https://github.com/multiformats/multicodec/blob/master/table.csv>.
+	switch keyType {
+	case Ed25519:
+		return []byte{0xED, 0x01}
+	case Bls12381:
+		return []byte{0xEB, 0x01}
+	default:
+		panic(fmt.Errorf("invalid key type: %v", keyType))
 	}
-	return makeKey(pri)
 }
 
-func makeKey(pri []byte) (*Key, error) {
-	pub := pri[32:]
-	prefixedKey := append([]byte{0xED, 0x01}, pub...)
-	str, err := multibase.Encode(multibase.Base58BTC, prefixedKey)
-	if err != nil {
-		return nil, err
+func blockType(keyType KeyType) string {
+	switch keyType {
+	case Ed25519:
+		return "ED25519 PRIVATE KEY"
+	case Bls12381:
+		return "BLS12-381 PRIVATE KEY"
+	default:
+		panic(fmt.Errorf("invalid key type: %v", keyType))
 	}
-	did := "did:key:" + str
-	resolution, err := key.New().Read(did)
-	if err != nil {
-		return nil, err
+}
+
+func GenerateKey(keyType KeyType) (Key, error) {
+	switch keyType {
+	case Ed25519:
+		return generateEd25519()
+	case Bls12381:
+		return generateBls12381()
+	default:
+		return nil, fmt.Errorf("invalid key type: %v", keyType)
 	}
-	return &Key{
-		Private:    pri,
-		Public:     pub,
-		Did:        did,
-		Resolution: *resolution,
-	}, nil
 }
 
-func (key *Key) Sign(message []byte) ([]byte, error) {
-	return key.Private.Sign(nil, message, nil)
-}
-
-func (key *Key) WritePrivateKey(filename string) error {
-	bytes, err := x509.MarshalPKCS8PrivateKey(key.Private)
+func Verify(did string, sigBytes []byte, message []byte, context string) error {
+	keyType, pubBytes, err := PublicKeyFromDid(did)
 	if err != nil {
 		return err
 	}
-	pemBlock := &pem.Block{
-		Type:  "ED25519 PRIVATE KEY",
-		Bytes: bytes,
+	switch keyType {
+	case Ed25519:
+		{
+			return verifyEd25519(pubBytes, sigBytes, message, context)
+		}
+	case Bls12381:
+		{
+			pub, err := pointG2FromBytesBls12381(pubBytes)
+			if err != nil {
+				return err
+			}
+			sig, err := pointG1FromBytesBls12381(sigBytes)
+			if err != nil {
+				return err
+			}
+			return verifyBls12381(pub, sig, message, context)
+		}
 	}
-	handle, err := os.Create(filename)
-	if err != nil {
-		return err
-	}
-	err = pem.Encode(handle, pemBlock)
-	if err != nil {
-		return err
-	}
-	return handle.Close()
+	return fmt.Errorf("invalid key type: %v", keyType)
 }
 
-func ReadPrivateKey(filename string) (*Key, error) {
+func ReadPrivateKey(filename string) (Key, error) {
 	pemBytes, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -82,31 +98,84 @@ func ReadPrivateKey(filename string) (*Key, error) {
 		return nil, fmt.Errorf("no PEM data present")
 	} else if len(rest) > 0 {
 		return nil, fmt.Errorf("extra PEM data present")
-	} else if block.Type != "ED25519 PRIVATE KEY" {
-		return nil, fmt.Errorf("wrong PEM block type")
+	} else if block.Type == blockType(Ed25519) {
+		pri, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+		if err == nil {
+			keyEd25519, okay := pri.(ed25519.PrivateKey)
+			if okay {
+				return makeEd25519(keyEd25519)
+			} else {
+				return fromBytesEd25519(block.Bytes)
+			}
+		} else {
+			return fromBytesEd25519(block.Bytes)
+		}
+	} else if block.Type == blockType(Bls12381) {
+		return fromBytesBls12381(block.Bytes)
 	}
-	pri, err := x509.ParsePKCS8PrivateKey(block.Bytes)
-	if err != nil {
-		return nil, err
-	}
-	return makeKey(pri.(ed25519.PrivateKey))
+	return nil, fmt.Errorf("wrong PEM block type")
 }
 
-func PublicKeyFromDid(did string) ([]byte, error) {
-	if !strings.HasPrefix(did, "did:key:") {
-		return nil, fmt.Errorf("invalid DID format")
+func WritePrivateKey(k Key, filename string) error {
+	var bytes []byte
+	keyEd25519, okay := k.(*KeyEd25519)
+	if okay {
+		var err error
+		bytes, err = x509.MarshalPKCS8PrivateKey(keyEd25519.Private)
+		if err != nil {
+			bytes = k.PrivateBytes()
+		}
+	} else {
+		bytes = k.PrivateBytes()
 	}
-	str := strings.TrimPrefix(did, "did:key:")
-	_, data, err := multibase.Decode(str)
+	block := &pem.Block{
+		Type:  blockType(k.keyType()),
+		Bytes: bytes,
+	}
+	handle, err := os.Create(filename)
 	if err != nil {
-		return nil, fmt.Errorf("multibase decode error: %v", err)
+		return err
 	}
-	if len(data) != 34 || data[0] != 0xED || data[1] != 0x01 {
-		return nil, fmt.Errorf("not a valid ed25519 multicodec key")
+	err = pem.Encode(handle, block)
+	if err != nil {
+		return err
 	}
-	return data[2:], nil
+	return handle.Close()
+}
+
+func Did(k Key) string {
+	prefixedKey := append(prefixBytes(k.keyType()), k.PublicBytes()...)
+	str, err := multibase.Encode(multibase.Base58BTC, prefixedKey)
+	if err != nil {
+		panic(err)
+	}
+	return "did:key:" + str
 }
 
 func ResolveDid(did string) (*did.DocResolution, error) {
 	return key.New().Read(did)
+}
+
+func PublicKeyFromDid(did string) (KeyType, []byte, error) {
+	if !strings.HasPrefix(did, "did:key:") {
+		return UnknownKeyType, nil, fmt.Errorf("invalid DID format")
+	}
+	str := strings.TrimPrefix(did, "did:key:")
+	_, data, err := multibase.Decode(str)
+	if err != nil {
+		return UnknownKeyType, nil, fmt.Errorf("multibase decode error: %v", err)
+	}
+	if len(data) < 2 {
+		return UnknownKeyType, nil, fmt.Errorf("invalid multicodec: %x", data)
+	}
+	firstTwoMatch := func(x []byte, y []byte) bool {
+		return x[0] == y[0] && x[1] == y[1]
+	}
+	if firstTwoMatch(data, prefixBytes(Ed25519)) {
+		return Ed25519, data[2:], nil
+	}
+	if firstTwoMatch(data, prefixBytes(Bls12381)) {
+		return Bls12381, data[2:], nil
+	}
+	return UnknownKeyType, nil, fmt.Errorf("unsupported multicodec key: %x", data[:2])
 }

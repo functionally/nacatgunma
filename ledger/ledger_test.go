@@ -20,7 +20,7 @@ func makeHeader(accept []cid.Cid, reject []cid.Cid) (cid.Cid, *header.Header) {
 		MediaType: "application/vnd.ipld.dag-cbor",
 		Comment:   "",
 	}
-	ky, _ := key.GenerateKey()
+	ky, _ := key.GenerateKey(key.Ed25519)
 	hdr, _ := payload.Sign(ky)
 	hdrBytes, _ := hdr.Marshal()
 	hdrCid, _ := ipfs.CidV1(hdrBytes)

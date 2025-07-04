@@ -14,19 +14,48 @@ func KeyCmds() *cli.Command {
 		Name:  "key",
 		Usage: "Key management subcommands",
 		Subcommands: []*cli.Command{
+			keyDidCmd(),
 			keyGenerateCmd(),
 			keyResolveCmd(),
 		},
 	}
 }
 
-func keyGenerateCmd() *cli.Command {
+func keyDidCmd() *cli.Command {
 
 	var keyFile string
 
 	return &cli.Command{
+		Name:  "did",
+		Usage: "Print the DID of a cryptographic key.",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:        "key-file",
+				Required:    true,
+				Usage:       "Input file for private key",
+				Destination: &keyFile,
+			},
+		},
+		Action: func(*cli.Context) error {
+			k, err := key.ReadPrivateKey(keyFile)
+			if err != nil {
+				return err
+			}
+			fmt.Println(key.Did(k))
+			return nil
+		},
+	}
+
+}
+
+func keyGenerateCmd() *cli.Command {
+
+	var keyFile string
+	var keyType string
+
+	return &cli.Command{
 		Name:  "generate",
-		Usage: "Generate an Ed25519 key.",
+		Usage: "Generate a cryptographic key.",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:        "key-file",
@@ -34,17 +63,31 @@ func keyGenerateCmd() *cli.Command {
 				Usage:       "Output file for private key",
 				Destination: &keyFile,
 			},
+			&cli.StringFlag{
+				Name:        "key-type",
+				Value:       "Ed25519",
+				Usage:       "The key type, either \"Ed25519\" or \"BLS12-381\"",
+				Destination: &keyType,
+			},
 		},
 		Action: func(*cli.Context) error {
-			key, err := key.GenerateKey()
+			allowed := map[string]key.KeyType{
+				"Ed25519":   key.Ed25519,
+				"BLS12-381": key.Bls12381,
+			}
+			kt, okay := allowed[keyType]
+			if !okay {
+				return fmt.Errorf("unsupported key type: %v", keyType)
+			}
+			k, err := key.GenerateKey(kt)
 			if err != nil {
 				return err
 			}
-			err = key.WritePrivateKey(keyFile)
+			err = key.WritePrivateKey(k, keyFile)
 			if err != nil {
 				return err
 			}
-			fmt.Println(key.Did)
+			fmt.Println(key.Did(k))
 			return nil
 		},
 	}
