@@ -1,6 +1,7 @@
 package tgdh
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -86,6 +87,25 @@ func TestRecompute(t *testing.T) {
 	}
 	if *AB.Private != *root.Private {
 		t.Error("incorrect recomputed private key")
+	}
+}
+
+func TestRemove(t *testing.T) {
+	A, _ := GenerateLeaf()
+	B, _ := GenerateLeaf()
+	AB, _ := Join(A, B.Strip())
+	root, err := DerivePrivates(A, AB.DeepStrip())
+	if err != nil {
+		t.Error(err)
+	}
+	A1, err := root.Remove(B)
+	if err != nil {
+		t.Error(err)
+	}
+	fmt.Println(A)
+	fmt.Println(A1)
+	if A1.Private != A.Private {
+		t.Error("removal failure")
 	}
 }
 

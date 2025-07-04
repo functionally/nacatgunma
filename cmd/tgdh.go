@@ -22,6 +22,7 @@ func tgdhCmds() *cli.Command {
 			tgdhJoinCmd(),
 			tgdhPublicCmd(),
 			tgdhPrivateCmd(),
+			tgdhRemoveCmd(),
 		},
 	}
 }
@@ -155,6 +156,71 @@ func tgdhJoinCmd() *cli.Command {
 				return err
 			}
 			private, err := tgdh.Join(left, right)
+			if err != nil {
+				return err
+			}
+			privateBytes, err := private.MarshalJSON()
+			if err != nil {
+				return err
+			}
+			err = os.WriteFile(privateFile, privateBytes, 0644)
+			if err != nil {
+				return err
+			}
+			fmt.Println(private.Did())
+			return nil
+		},
+	}
+
+}
+
+func tgdhRemoveCmd() *cli.Command {
+
+	var leafFile string
+	var rootFile string
+	var privateFile string
+
+	return &cli.Command{
+		Name:  "remove",
+		Usage: "Remove a TGDH keys from an aggregate TGDH key, where at least one of the root keys is private.",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:        "leaf-file",
+				Required:    true,
+				Usage:       "Input file of TGDH key to be removed",
+				Destination: &leafFile,
+			},
+			&cli.StringFlag{
+				Name:        "root-file",
+				Required:    true,
+				Usage:       "Input file of root TGDH private key",
+				Destination: &rootFile,
+			},
+			&cli.StringFlag{
+				Name:        "private-file",
+				Required:    true,
+				Usage:       "Output file of new root TGDH private key",
+				Destination: &privateFile,
+			},
+		},
+		Action: func(*cli.Context) error {
+			leafBytes, err := os.ReadFile(leafFile)
+			if err != nil {
+				return err
+			}
+			leaf, err := tgdh.UnmarshalJSON(leafBytes)
+			if err != nil {
+				return err
+			}
+			rootBytes, err := os.ReadFile(rootFile)
+			if err != nil {
+				return err
+			}
+			root, err := tgdh.UnmarshalJSON(rootBytes)
+			if err != nil {
+				return err
+			}
+			private, err := root.Remove(leaf)
 			if err != nil {
 				return err
 			}

@@ -95,6 +95,47 @@ func Join(left *Node, right *Node) (*Node, error) {
 	return makeNode(pri, left, right), nil
 }
 
+func (root *Node) Remove(leaf *Node) (*Node, error) {
+	if root.Public == leaf.Public {
+		return nil, fmt.Errorf("cannot remove root")
+	}
+	path, err := FindPath(leaf, root)
+	if err != nil {
+		return nil, err
+	}
+	leaf = path[0]
+	roots := []*Node{}
+	for _, node := range path[1:] {
+		if node.Left == leaf && node.Right != nil {
+			roots = append(roots, node.Right)
+		} else if node.Right == leaf && node.Left != nil {
+			roots = append(roots, node.Left)
+		}
+		leaf = node
+	}
+	var start *Node
+	for _, node := range roots {
+		if node.Private != nil {
+			start = node
+			break
+		}
+	}
+	if start == nil {
+		return nil, fmt.Errorf("root does not contain any private keys")
+	}
+	root1 := start
+	for _, node := range roots {
+		if node == start {
+			continue
+		}
+		root1, err = Join(root1, node)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return root1, nil
+}
+
 func (node *Node) Did() string {
 	pub := bls12381.NewG1().ToCompressed(&node.Public)
 	prefixedKey := append([]byte{0xEA, 0x01}, pub...)
