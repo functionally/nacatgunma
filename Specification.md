@@ -38,9 +38,9 @@ Let $`\mathcal{C}`$ be the set of content identifiers (e.g., CIDs), and let $`\m
 
 Each block is a tuple:
 
-$$`
+$$
 B = (\text{id}, \mathsf{accept}(B), \mathsf{reject}(B), \mathsf{body}(B), \mathsf{schema}(B), \mathsf{media}(B), \mathsf{comment}(B), \mathsf{issuer}(B), \mathsf{sig}(B))
-`$$
+$$
 
 where:
 - $`\text{id} \in \mathcal{C}`$: the content identifier of the block itself.
@@ -71,9 +71,9 @@ Each participant $`u \in \mathcal{P}`$ maintains:
 
 - A **trust function**:
 
-$$`
+$$
 T\_u : \mathcal{P} \to [0,1]
-`$$
+$$
 
 - A set of **trusted tips** $`\mathcal{T}_u \subseteq \mathcal{C}`$ used as starting points for state computation.
 
@@ -92,9 +92,9 @@ This defines **rejection as a pruning operator** on traversal.
 
 Formally, the **visible blocks** for participant $`u`$ are:
 
-$$`
+$$
 \mathcal{V}_u = \{ B \in \mathcal{D} \mid B \text{ is reachable from } \mathcal{T}_u \text{ via non-rejected paths} \}
-`$$
+$$
 
 A path is **non-rejected** if no intermediate block $`A`$ along the path has $`\mathsf{reject}(A) \ni B'`$ for any $`B'`$ also on the path.
 
