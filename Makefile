@@ -14,6 +14,12 @@ test: $(SRCS)
 format: $(SRCS)
 	GOPATH= go fmt $(PKGS)
 
+lint: $(SRCS)
+	golint $(PKGS)
+
+tidy: go.sum go.mod
+	go mod tidy
+
 .SUFFIXES:
 
-.PHONY: test format
+.PHONY: test format lint tidy

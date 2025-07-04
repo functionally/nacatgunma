@@ -53,7 +53,7 @@ func headerBuildCmd() *cli.Command {
 				Name:        "schema",
 				Value:       "https://w3c.github.io/json-ld-cbor/",
 				Usage:       "Schema for the block body",
-				Destination: &payload.SchemaUri,
+				Destination: &payload.SchemaURI,
 			},
 			&cli.StringSliceFlag{
 				Name:        "accept",

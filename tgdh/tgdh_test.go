@@ -1,7 +1,6 @@
 package tgdh
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -35,13 +34,12 @@ func TestRoot(t *testing.T) {
 				t.Error(err)
 			}
 			return node
-		} else {
-			node, err := Join(left.Strip(), right)
-			if err != nil {
-				t.Error(err)
-			}
-			return node
 		}
+		node, err := Join(left.Strip(), right)
+		if err != nil {
+			t.Error(err)
+		}
+		return node
 	}
 	compute := func(flags [7]bool) *Node {
 		ab := join(flags[0], leaves[0], leaves[1])
@@ -102,8 +100,6 @@ func TestRemove(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	fmt.Println(A)
-	fmt.Println(A1)
 	if A1.Private != A.Private {
 		t.Error("removal failure")
 	}

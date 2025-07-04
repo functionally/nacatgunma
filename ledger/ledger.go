@@ -209,7 +209,7 @@ cid:%v a :Header
 		hdr.Issuer,
 		base64.StdEncoding.EncodeToString(hdr.Signature),
 		hdr.Payload.Version,
-		hdr.Payload.SchemaUri,
+		hdr.Payload.SchemaURI,
 		hdr.Payload.MediaType,
 		strings.ReplaceAll(hdr.Payload.Comment, `"`, `\"`),
 		hdr.Payload.Body,

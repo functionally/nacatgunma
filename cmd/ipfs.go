@@ -29,7 +29,7 @@ func ipfsChainCmd() *cli.Command {
 	var headerDir string
 	var bodyDir string
 	var tipCid string
-	var ipfsApi string
+	var ipfsAPI string
 	var force bool
 	var progress bool
 
@@ -41,7 +41,7 @@ func ipfsChainCmd() *cli.Command {
 				Name:        "ipfs-api",
 				Value:       "localhost:5001",
 				Usage:       "Endpoint for the IPFS API",
-				Destination: &ipfsApi,
+				Destination: &ipfsAPI,
 			},
 			&cli.StringFlag{
 				Name:        "tip-cid",
@@ -75,7 +75,7 @@ func ipfsChainCmd() *cli.Command {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			sh := shell.NewShell(ipfsApi)
+			sh := shell.NewShell(ipfsAPI)
 			var bodyDirPtr *string
 			if ctx.IsSet("body-dir") {
 				bodyDirPtr = &bodyDir
@@ -92,7 +92,7 @@ func ipfsFetchCmd() *cli.Command {
 	var headerFile string
 	var bodyFile string
 	var headerCid string
-	var ipfsApi string
+	var ipfsAPI string
 
 	return &cli.Command{
 		Name:  "fetch",
@@ -102,7 +102,7 @@ func ipfsFetchCmd() *cli.Command {
 				Name:        "ipfs-api",
 				Value:       "localhost:5001",
 				Usage:       "Endpoint for the IPFS API",
-				Destination: &ipfsApi,
+				Destination: &ipfsAPI,
 			},
 			&cli.StringFlag{
 				Name:        "header-cid",
@@ -124,7 +124,7 @@ func ipfsFetchCmd() *cli.Command {
 			},
 		},
 		Action: func(*cli.Context) error {
-			sh := shell.NewShell(ipfsApi)
+			sh := shell.NewShell(ipfsAPI)
 			hdrBytes, err := ipfs.FetchNode(sh, headerCid)
 			if err != nil {
 				return err
@@ -154,7 +154,7 @@ func ipfsStoreCmd() *cli.Command {
 
 	var keyFile string
 	var bodyFile string
-	var ipfsApi string
+	var ipfsAPI string
 	var payload header.Payload
 	var accepts cli.StringSlice
 	var rejects cli.StringSlice
@@ -167,7 +167,7 @@ func ipfsStoreCmd() *cli.Command {
 				Name:        "ipfs-api",
 				Value:       "localhost:5001",
 				Usage:       "Endpoint for the IPFS API",
-				Destination: &ipfsApi,
+				Destination: &ipfsAPI,
 			},
 			&cli.StringFlag{
 				Name:        "key-file",
@@ -185,7 +185,7 @@ func ipfsStoreCmd() *cli.Command {
 				Name:        "schema",
 				Value:       "DAG-CBOR",
 				Usage:       "Schema for the body",
-				Destination: &payload.SchemaUri,
+				Destination: &payload.SchemaURI,
 			},
 			&cli.StringSliceFlag{
 				Name:        "accept",
@@ -211,7 +211,7 @@ func ipfsStoreCmd() *cli.Command {
 			},
 		},
 		Action: func(*cli.Context) error {
-			sh := shell.NewShell(ipfsApi)
+			sh := shell.NewShell(ipfsAPI)
 			k, err := key.ReadPrivateKey(keyFile)
 			if err != nil {
 				return err

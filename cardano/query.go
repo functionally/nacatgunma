@@ -27,30 +27,30 @@ func (client *Client) TipsV1(address common.Address) ([]Tip, error) {
 }
 
 type Tip struct {
-	TxId       localstatequery.UtxoId
+	TxID       localstatequery.UtxoId
 	TxOut      babbage.BabbageTransactionOutput
 	Credential common.Credential
 	HeaderCid  cid.Cid
 }
 
-type tipRep struct {
-	TxId             string
+type TipRep struct {
+	TxID             string
 	ScriptCredential bool
 	CredentialHash   string
 	HeaderCid        string
 }
 
-func TipReps(tips []Tip) []tipRep {
-	var result []tipRep
+func TipReps(tips []Tip) []TipRep {
+	var result []TipRep
 	for _, tip := range tips {
 		result = append(result, *tip.Rep())
 	}
 	return result
 }
 
-func (tip *Tip) Rep() *tipRep {
-	return &tipRep{
-		TxId:             fmt.Sprintf("%v#%v", tip.TxId.Hash, tip.TxId.Idx),
+func (tip *Tip) Rep() *TipRep {
+	return &TipRep{
+		TxID:             fmt.Sprintf("%v#%v", tip.TxID.Hash, tip.TxID.Idx),
 		ScriptCredential: tip.Credential.CredType&0x10 != 0,
 		CredentialHash:   fmt.Sprintf("%x", tip.Credential.Credential.Bytes()),
 		HeaderCid:        tip.HeaderCid.String(),
@@ -62,7 +62,7 @@ func tipV1(id localstatequery.UtxoId, output babbage.BabbageTransactionOutput) (
 		return nil, fmt.Errorf("no datum")
 	}
 	var tip Tip
-	tip.TxId = id
+	tip.TxID = id
 	tip.TxOut = output
 	data, err := output.DatumOption.MarshalCBOR()
 	if err != nil {

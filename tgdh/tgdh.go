@@ -20,27 +20,27 @@ type Node struct {
 	Right   *Node
 }
 
-func (node *Node) Strip() *Node {
+func (root *Node) Strip() *Node {
 	return &Node{
 		Private: nil,
-		Public:  node.Public,
-		Left:    node.Left,
-		Right:   node.Right,
+		Public:  root.Public,
+		Left:    root.Left,
+		Right:   root.Right,
 	}
 }
 
-func (node *Node) DeepStrip() *Node {
+func (root *Node) DeepStrip() *Node {
 	var left *Node
-	if node.Left != nil {
-		left = node.Left.DeepStrip()
+	if root.Left != nil {
+		left = root.Left.DeepStrip()
 	}
 	var right *Node
-	if node.Right != nil {
-		right = node.Right.DeepStrip()
+	if root.Right != nil {
+		right = root.Right.DeepStrip()
 	}
 	return &Node{
 		Private: nil,
-		Public:  node.Public,
+		Public:  root.Public,
 		Left:    left,
 		Right:   right,
 	}
@@ -136,8 +136,8 @@ func (root *Node) Remove(leaf *Node) (*Node, error) {
 	return root1, nil
 }
 
-func (node *Node) Did() string {
-	pub := bls12381.NewG1().ToCompressed(&node.Public)
+func (root *Node) Did() string {
+	pub := bls12381.NewG1().ToCompressed(&root.Public)
 	prefixedKey := append([]byte{0xEA, 0x01}, pub...)
 	str, err := multibase.Encode(multibase.Base58BTC, prefixedKey)
 	if err != nil {
@@ -210,7 +210,7 @@ type jsonNode struct {
 	Right   *jsonNode `json:"right,omitempty"`
 }
 
-func (root *Node) toJsonNode() (*jsonNode, error) {
+func (root *Node) toJSONNode() (*jsonNode, error) {
 	if root == nil {
 		return nil, nil
 	}
@@ -222,11 +222,11 @@ func (root *Node) toJsonNode() (*jsonNode, error) {
 	g1 := bls12381.NewG1()
 	pubBytes := g1.ToCompressed(&root.Public)
 	pubHex := hex.EncodeToString(pubBytes)
-	left, err := root.Left.toJsonNode()
+	left, err := root.Left.toJSONNode()
 	if err != nil {
 		return nil, err
 	}
-	right, err := root.Right.toJsonNode()
+	right, err := root.Right.toJSONNode()
 	if err != nil {
 		return nil, err
 	}
@@ -239,14 +239,14 @@ func (root *Node) toJsonNode() (*jsonNode, error) {
 }
 
 func (root *Node) MarshalJSON() ([]byte, error) {
-	j, err := root.toJsonNode()
+	j, err := root.toJSONNode()
 	if err != nil {
 		return nil, err
 	}
 	return json.Marshal(j)
 }
 
-func (j *jsonNode) fromJsonNode() (*Node, error) {
+func (j *jsonNode) fromJSONNode() (*Node, error) {
 	if j == nil {
 		return nil, nil
 	}
@@ -270,11 +270,11 @@ func (j *jsonNode) fromJsonNode() (*Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	left, err := j.Left.fromJsonNode()
+	left, err := j.Left.fromJSONNode()
 	if err != nil {
 		return nil, err
 	}
-	right, err := j.Right.fromJsonNode()
+	right, err := j.Right.fromJSONNode()
 	if err != nil {
 		return nil, err
 	}
@@ -291,7 +291,7 @@ func UnmarshalJSON(data []byte) (*Node, error) {
 	if err := json.Unmarshal(data, &j); err != nil {
 		return nil, err
 	}
-	return j.fromJsonNode()
+	return j.fromJSONNode()
 }
 
 func Equal(x *Node, y *Node) bool {

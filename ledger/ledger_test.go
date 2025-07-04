@@ -16,7 +16,7 @@ func makeHeader(accept []cid.Cid, reject []cid.Cid) (cid.Cid, *header.Header) {
 		Body:      body,
 		Accept:    accept,
 		Reject:    reject,
-		SchemaUri: "https://w3c.github.io/json-ld-cbor/",
+		SchemaURI: "https://w3c.github.io/json-ld-cbor/",
 		MediaType: "application/vnd.ipld.dag-cbor",
 		Comment:   "",
 	}

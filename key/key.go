@@ -104,12 +104,10 @@ func ReadPrivateKey(filename string) (Key, error) {
 			keyEd25519, okay := pri.(ed25519.PrivateKey)
 			if okay {
 				return makeEd25519(keyEd25519)
-			} else {
-				return fromBytesEd25519(block.Bytes)
 			}
-		} else {
 			return fromBytesEd25519(block.Bytes)
 		}
+		return fromBytesEd25519(block.Bytes)
 	} else if block.Type == blockType(Bls12381) {
 		return fromBytesBls12381(block.Bytes)
 	}
