@@ -27,14 +27,14 @@ func (client *Client) TipsV1(address common.Address) ([]Tip, error) {
 }
 
 type Tip struct {
-	TxID       localstatequery.UtxoId
+	TxId       localstatequery.UtxoId
 	TxOut      babbage.BabbageTransactionOutput
 	Credential common.Credential
 	HeaderCid  cid.Cid
 }
 
 type TipRep struct {
-	TxID             string
+	TxId             string
 	ScriptCredential bool
 	CredentialHash   string
 	HeaderCid        string
@@ -50,7 +50,7 @@ func TipReps(tips []Tip) []TipRep {
 
 func (tip *Tip) Rep() *TipRep {
 	return &TipRep{
-		TxID:             fmt.Sprintf("%v#%v", tip.TxID.Hash, tip.TxID.Idx),
+		TxId:             fmt.Sprintf("%v#%v", tip.TxId.Hash, tip.TxId.Idx),
 		ScriptCredential: tip.Credential.CredType&0x10 != 0,
 		CredentialHash:   fmt.Sprintf("%x", tip.Credential.Credential.Bytes()),
 		HeaderCid:        tip.HeaderCid.String(),
@@ -62,7 +62,7 @@ func tipV1(id localstatequery.UtxoId, output babbage.BabbageTransactionOutput) (
 		return nil, fmt.Errorf("no datum")
 	}
 	var tip Tip
-	tip.TxID = id
+	tip.TxId = id
 	tip.TxOut = output
 	data, err := output.DatumOption.MarshalCBOR()
 	if err != nil {

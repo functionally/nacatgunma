@@ -1,4 +1,14 @@
 *.pem
+*.pem.gpg
 *.skey
+*.skey.gpg
+*.pri
+*.pri.gpg
+*.pub
 *.unsigned
 *.signed
+nacatgunma.*
+galileo.*
+headers/
+bodies/
+pluto/

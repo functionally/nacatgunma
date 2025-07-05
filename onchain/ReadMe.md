@@ -15,3 +15,9 @@ Use the [Nacatgunma Explorer](http://nacatgunma.functionally.io:8080/ipfs/bafybe
     - Header: [bafyreignmx5htp2z4dzzqvty5bzpyw72yueqas7jzcw2qjfje7rakshzna](https://ipfs.io/ipfs/bafyreignmx5htp2z4dzzqvty5bzpyw72yueqas7jzcw2qjfje7rakshzna)
     - Body: [bafyreihwb4ovmuh5mvfzbg66j5swaas6kmxuuabo75g52s672aojywbmfi](http://ipfs.io/ipfs/bafyreihwb4ovmuh5mvfzbg66j5swaas6kmxuuabo75g52s672aojywbmfi)
 
+
+## Example workflow
+
+The following file provides a template for building and submitting blocks. It needs customization before use.
+
+- [workflow.sh](workflow.sh)
