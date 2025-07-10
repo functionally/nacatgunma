@@ -1,5 +1,6 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p util-linux kubo jq raptor2
+#!nix-shell -I nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixos-25.05.tar.gz
+#!nix-shell -i bash -p util-linux kubo jq librdf_raptor2
 
 set -e
 
@@ -18,7 +19,7 @@ TIP=$(nacatgunma cardano tips --node-socket "$CARDANO_NODE_SOCKET_PATH" --script
 ### BEGIN CUSTOMIZATION ###
 SUBMIT=0
 PIN=0
-SUFFIX=12
+SUFFIX=13
 TYPE=EMPTY
 ### END CUSTOMIZATION ###
 
