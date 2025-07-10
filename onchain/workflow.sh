@@ -18,7 +18,7 @@ TIP=$(nacatgunma cardano tips --node-socket "$CARDANO_NODE_SOCKET_PATH" --script
 ### BEGIN CUSTOMIZATION ###
 SUBMIT=0
 PIN=0
-SUFFIX=11
+SUFFIX=12
 TYPE=EMPTY
 ### END CUSTOMIZATION ###
 
@@ -28,12 +28,14 @@ case "$TYPE" in
     ### BEGIN CUSTOMIZATION ###
     COMMENT=
     BODY_IRI=urn:uuid:$(uuidgen)
+    BODY=
     ### END CUSTOMIZATION ###
     BODY_TTL="$BODY.ttl"
     BODY_NQ="$BODY.nq"
     BODY_CBOR="$BODY.cbor"
     rapper -q -i turtle -o nquads "$BODY_TTL" "$BODY_IRI" > "$BODY_NQ"
     BODY_CID=$(nacatgunma body rdf --base-uri "$BODY_IRI" --rdf-file "$BODY_NQ" --body-file "$BODY_CBOR")
+    ipfs dag put --input-codec dag-cbor --store-codec dag-cbor --pin=false "$BODY_CBOR"
     MEDIA_TYPE=application/vnd.ipld.dag-cbor
     SCHEMA_URI=https://w3c.github.io/json-ld-cbor/
     ;;
@@ -124,6 +126,8 @@ ipfs dag put --input-codec dag-cbor --store-codec dag-cbor --pin=false "$HEADER_
 if [ "$PIN" == "1" ]
 then
   ipfs pin add --recursive --name=nacatgunma-$SUFFIX.header $HEADER_CID
+else
+  echo ipfs pin add --recursive --name=nacatgunma-$SUFFIX.header $HEADER_CID
 fi
 
 ipfs cid format -b base16 -f %s "$HEADER_CID" | tail -c +2 > "$HEADER.cid16"
@@ -155,7 +159,7 @@ cardano-cli conway query utxo --address $CONTROLER_ADDR --output-json \
 )
 
 PLUTUS_REDEEMER="${PLUTUS_FILE%%.plutus}.redeemer"
-PLUTUS_TXIN=$(echo $TIP | jq -r '.TxID')
+PLUTUS_TXIN=$(echo $TIP | jq -r '.TxId')
 
 cardano-cli conway transaction build \
   --tx-in-collateral "$COLLATERAL_TXIN"\
